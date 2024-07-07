@@ -56,6 +56,34 @@ body {
 	max-width: 40em;
 }
 
+/* crayon component */
+ol.crayons {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+ol.crayons li {
+	display:flex;
+	align-items: center;
+	gap: 1.2rem;
+	justify-content: center;
+}
+
+ol.crayons li figure {
+	margin: 0;
+}
+
+ol.crayons li figure svg {
+	width: 100%;
+}
+
+ol.crayons li button {
+	padding: .5em 1.2em;
+	max-width: 90px;
+	height: 2.2rem;
+}
+
 /* https://www.a11yproject.com/posts/how-to-hide-content/ */
 .visually-hidden {
 	clip: rect(0 0 0 0);

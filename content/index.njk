@@ -1,11 +1,57 @@
 ---
+title: Home
 layout: layouts/home.njk
-eleventyNavigation:
-  key: Home
-  order: 1
-numberOfLatestPostsToShow: 3
 ---
-{% set postsCount = collections.posts | length %}
+{% set crayonData = crayola -%}
+<ol class="crayons">
+{% for crayon in crayola -%}
+<li>
+  <figure>
+    <svg 
+	width="100%" 
+	height="100%" 
+	viewBox="0 0 1172 121" 
+	fill="none" xmlns="http://www.w3.org/2000/svg">
+		<g clip-path="url(#clip0_8_39)">
+		<g filter="url(#filter0_i_8_39)">
+		<rect x="186" width="922" height="625" fill="#D9D9D9"/>
+		</g>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M248 0H269C278 24 283 37.5 287.5 61.5C287.5 82.2972 281.06 97.8526 275.229 111.937C270.406 123.587 266 134.23 266 146C266 158.759 270.696 172.602 275.479 186.701C280.443 201.333 285.5 216.241 285.5 230.5C285.5 244.5 281 257.875 276.5 271.25C272 284.625 267.5 298 267.5 312C267.5 326.327 272.737 342.749 277.851 358.787C282.731 374.092 287.5 389.048 287.5 401.5C287.5 413.577 283.911 419.71 280.133 426.167C275.933 433.343 271.5 440.919 271.5 457.5V491H290.5V457.5C290.5 442.873 293.934 435.878 297.339 428.944C300.684 422.131 304 415.377 304 401.5C304 387.241 299.202 371.036 294.493 355.132C289.955 339.806 285.5 324.759 285.5 312C285.5 299.241 290.076 286.12 294.736 272.757C299.572 258.889 304.5 244.759 304.5 230.5C304.5 216.173 299.525 201.06 294.667 186.301C290.031 172.215 285.5 158.452 285.5 146C285.5 135.345 289.166 127.484 293.435 118.33C299.383 105.577 306.5 90.3169 306.5 61.5C301.5 33 295 10 290.5 0H324V625H290V600H271V625H248V0Z" fill="black"/>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M970 0H991C1000 24 1005 37.5 1009.5 61.5C1009.5 82.2972 1003.06 97.8526 997.229 111.937C992.406 123.587 988 134.23 988 146C988 158.759 992.696 172.602 997.479 186.701C1002.44 201.333 1007.5 216.241 1007.5 230.5C1007.5 244.5 1003 257.875 998.5 271.25C994 284.625 989.5 298 989.5 312C989.5 326.327 994.737 342.749 999.851 358.787C1004.73 374.092 1009.5 389.048 1009.5 401.5C1009.5 413.577 1005.91 419.71 1002.13 426.167C997.933 433.343 993.5 440.919 993.5 457.5V491H1012.5V457.5C1012.5 442.873 1015.93 435.878 1019.34 428.944C1022.68 422.131 1026 415.377 1026 401.5C1026 387.241 1021.2 371.036 1016.49 355.132C1011.96 339.806 1007.5 324.759 1007.5 312C1007.5 299.241 1012.08 286.12 1016.74 272.757C1021.57 258.889 1026.5 244.759 1026.5 230.5C1026.5 216.173 1021.53 201.06 1016.67 186.301C1012.03 172.215 1007.5 158.452 1007.5 146C1007.5 135.345 1011.17 127.484 1015.44 118.33C1021.38 105.577 1028.5 90.3169 1028.5 61.5C1023.5 33 1017 10 1012.5 0H1046V625H1012V600H993V625H970V0Z" fill="black"/>
+		<path d="M1108 1H1168C1170.21 1 1172 2.79086 1172 5V119C1172 121.209 1170.21 123 1168 123H1108V1Z" fill="{{ crayon.hex }}"/>
+		<path d="M186 0H126.5C124.291 0 122.5 1.79086 122.5 4V17.1591C122.5 19.1306 121.064 20.8081 119.116 21.1115L3.38446 39.1355C1.43646 39.4388 0 41.1163 0 43.0878V74.9778C0 76.9131 1.38553 78.5708 3.29012 78.9143L119.21 99.8182C121.114 100.162 122.5 101.819 122.5 103.755V118C122.5 120.209 124.291 122 126.5 122H186V0Z" fill="{{ crayon.hex }}"/>
+		</g>
+		<defs>
+		<filter id="filter0_i_8_39" x="186" y="0" width="922" height="629" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+		<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+		<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+		<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+		<feMorphology radius="1000" operator="erode" in="SourceAlpha" result="effect1_innerShadow_8_39"/>
+		<feOffset dy="4"/>
+		<feGaussianBlur stdDeviation="2"/>
+		<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+		<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+		<feBlend mode="normal" in2="shape" result="effect1_innerShadow_8_39"/>
+		</filter>
+		<clipPath id="clip0_8_39">
+		<rect width="1172" height="121" fill="white"/>
+		</clipPath>
+		</defs>
+	</svg>
+  </figure>
+  <button>{{ crayon.hex }}</button>
+</li>
+{% endfor %}
+  {# <li>
+	<figure>
+	{{ crayon.hex }}
+	{{ crayon.color }}
+	</figure>
+  </li> #}
+</ol>
+
+
+{# {% set postsCount = collections.posts | length %}
 {% set latestPostsCount = postsCount | min(numberOfLatestPostsToShow) %}
 <h1>Latest {{ latestPostsCount }} Post{% if latestPostsCount != 1 %}s{% endif %}</h1>
 
@@ -16,7 +62,7 @@ numberOfLatestPostsToShow: 3
 {% set morePosts = postsCount - numberOfLatestPostsToShow %}
 {% if morePosts > 0 %}
 <p>{{ morePosts }} more post{% if morePosts != 1 %}s{% endif %} can be found in <a href="/blog/">the archive</a>.</p>
-{% endif %}
+{% endif %} #}
 
 {# List every content page in the project #}
 {#
