@@ -6,6 +6,8 @@ const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 const pluginBundle = require("@11ty/eleventy-plugin-bundle");
 const pluginNavigation = require("@11ty/eleventy-navigation");
 const { EleventyHtmlBasePlugin } = require("@11ty/eleventy");
+const codeClipboard = require("eleventy-plugin-code-clipboard");
+const markdownIt = require('markdown-it');
 
 const pluginDrafts = require("./eleventy.config.drafts.js");
 const pluginImages = require("./eleventy.config.images.js");
@@ -18,6 +20,13 @@ module.exports = function(eleventyConfig) {
 		"./public/": "/",
 		"./node_modules/prismjs/themes/prism-okaidia.css": "/css/prism-okaidia.css"
 	});
+	eleventyConfig.addPassthroughCopy("content/assets/js");
+
+	const markdownLibrary = markdownIt({
+		html: true
+	  }).use(codeClipboard.markdownItCopyButton);
+	  
+	  eleventyConfig.setLibrary("md", markdownLibrary);
 
 	// Run Eleventy when these files change:
 	// https://www.11ty.dev/docs/watch-serve/#add-your-own-watch-targets
@@ -28,6 +37,7 @@ module.exports = function(eleventyConfig) {
 	// App plugins
 	eleventyConfig.addPlugin(pluginDrafts);
 	eleventyConfig.addPlugin(pluginImages);
+    eleventyConfig.addPlugin(codeClipboard);
 
 	// Official plugins
 	eleventyConfig.addPlugin(pluginRss);
@@ -95,7 +105,7 @@ module.exports = function(eleventyConfig) {
 
 	eleventyConfig.addShortcode("currentBuildDate", () => {
 		return (new Date()).toISOString();
-	})
+	});
 
 	// Features to make your build faster (when you need them)
 
@@ -103,7 +113,7 @@ module.exports = function(eleventyConfig) {
 	// to emulate the file copy on the dev server. Learn more:
 	// https://www.11ty.dev/docs/copy/#emulate-passthrough-copy-during-serve
 
-	// eleventyConfig.setServerPassthroughCopyBehavior("passthrough");
+	//eleventyConfig.setServerPassthroughCopyBehavior("passthrough");
 
 	return {
 		// Control which files Eleventy will process

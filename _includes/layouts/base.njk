@@ -10,16 +10,7 @@
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="{{ metadata.title }}">
 		<link rel="alternate" href="/feed/feed.json" type="application/json" title="{{ metadata.title }}">
 
-		{#- Uncomment this if you’d like folks to know that you used Eleventy to build your site!  #}
-		{#- <meta name="generator" content="{{ eleventy.generator }}"> #}
-
-		{#-
-		CSS bundles are provided via the `eleventy-plugin-bundle` plugin:
-		1. You can add to them using `{% css %}`
-		2. You can get from them using `{% getBundle "css" %}` or `{% getBundleFileUrl "css" %}`
-		3. You can do the same for JS: {% js %}{% endjs %} and <script>{% getBundle "js" %}</script>
-		4. Learn more: https://github.com/11ty/eleventy-plugin-bundle
-		#}
+		<meta name="generator" content="{{ eleventy.generator }}">
 
 		{#- Add an arbitrary string to the bundle #}
 		{%- css %}* { box-sizing: border-box; }{% endcss %}
@@ -32,6 +23,7 @@
 		<style>{% getBundle "css" %}</style>
 		{#- Renders the CSS bundle using a separate file, if you can't set CSP directive style-src: 'unsafe-inline' #}
 		{#- <link rel="stylesheet" href="{% getBundleFileUrl "css" %}"> #}
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/19.1.1/tooltips.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	</head>
 	<body>
 		<a href="#skip" class="visually-hidden">Skip to main content</a>
@@ -45,8 +37,8 @@
 				<ul class="nav">
 				{%- for entry in collections.all | eleventyNavigation %}
 					{# <li class="nav-item"><a href="{{ entry.url }}"{% if entry.url == page.url %} aria-current="page"{% endif %}>{{ entry.title }}</a></li> #}
-					<li class="nav-item"><a href="#"{% if entry.url == page.url %} aria-current="page"{% endif %}>About</a></li>
-					<li class="nav-item"><a href="#"{% if entry.url == page.url %} aria-current="page"{% endif %}>Crayons</a></li>
+					{# <li class="nav-item"><a href="#"{% if entry.url == page.url %} aria-current="page"{% endif %}>About</a></li>
+					<li class="nav-item"><a href="#"{% if entry.url == page.url %} aria-current="page"{% endif %}>Crayons</a></li> #}
 				{%- endfor %}
 				</ul>
 			</nav>
@@ -57,6 +49,10 @@
 		</main>
 
 		<footer></footer>
+
+		{% if js %}
+    		<script type="module" src="{{ js }}"></script>
+		{% endif %}
 
 		<!-- This page `{{ page.url | htmlBaseUrl }}` was built on {% currentBuildDate %} -->
 	</body>
