@@ -80,7 +80,7 @@ ol.crayons li figure svg {
 
 ol.crayons li button {
 	padding: .5em 1.2em;
-	max-width: 90px;
+	/* max-width: 90px; */
 	height: 2.2rem;
 }
 

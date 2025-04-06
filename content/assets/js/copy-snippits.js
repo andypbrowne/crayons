@@ -1,33 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM fully loaded and parsed");
-
     const buttons = document.querySelectorAll(".copy-btn");
     console.log(`Found ${buttons.length} copy buttons`);
   
     buttons.forEach((button) => {
       button.addEventListener("click", () => {
         const snippetId = button.getAttribute("data-snippet-id");
-        console.log(`Button clicked for snippet ID: ${snippetId}`);
-  
         const snippet = document.getElementById(snippetId);
         if (snippet) {
           const textToCopy = snippet.textContent;
-          console.log(`Text to copy: ${textToCopy}`);
-  
           navigator.clipboard.writeText(textToCopy).then(() => {
-            // Show a temporary message near the button
-            const message = document.createElement("span");
-            message.textContent = "Copied!";
-            message.style.marginLeft = "8px";
-            message.style.color = "green";
-            message.style.fontSize = "0.9rem";
-  
-            button.parentNode.appendChild(message);
-  
-            // Remove the message after 2 seconds
+            // Create a tooltip-like message
+            const tooltip = document.createElement("div");
+            tooltip.textContent = "Copied!";
+            tooltip.style.position = "absolute";
+            tooltip.style.top = "-30px"; // Position above the button
+            tooltip.style.left = "50%";
+            tooltip.style.transform = "translateX(-50%)";
+            tooltip.style.backgroundColor = "black";
+            tooltip.style.color = "white";
+            tooltip.style.padding = "5px 10px";
+            tooltip.style.borderRadius = "4px";
+            tooltip.style.fontSize = "0.8rem";
+            tooltip.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
+            tooltip.style.zIndex = "1000";
+            tooltip.style.pointerEvents = "none"; // Prevent interaction
+
+            // Append the tooltip to the button
+            button.style.position = "relative"; // Ensure the button is the positioning context
+            button.appendChild(tooltip);
+
+            // Remove the tooltip after 2 seconds
             setTimeout(() => {
-              message.remove();
-            }, 3000);
+              tooltip.remove();
+            }, 2000);
           }).catch((err) => {
             console.error("Failed to copy text: ", err);
           });
