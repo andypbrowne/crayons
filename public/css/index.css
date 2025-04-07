@@ -138,15 +138,48 @@ header:after {
 	padding: 0;
 	list-style: none;
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	grid-template-columns: 1fr 2fr;
+	grid-template-columns: repeat(auto-fit, minmax(min-content, max-content)); /* Or grid-template-rows */
+	display: flex;
+	flex-flow: row wrap;
 	gap: 1rem;
 	align-items: start;
 	font-size: smaller;
+	/* Make the filters sticky */
+	position: sticky;
+	top: 0; /* Distance from the top of the viewport */
+	z-index: 1000; /* Ensure it stays above other elements */
+	background-color: var(--background-color); /* Match the page background */
+	background-color: rgba(255, 255, 255, 0.8); 
+    backdrop-filter: blur(10px); /* Apply blur effect */
+    -webkit-backdrop-filter: blur(10px); /* Safari support */
+}
+
+@prefers-color-scheme: dark {
+	.filters {
+		background-color: rgba(21, 32, 43, 0.8); 
+	}
+}
+
+
+.filter-group {
+	display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two equal-width columns */
+  gap: 1rem; /* Add spacing between items */
+  align-items: start;
 }
 .filters li {
 	display: flex;
-	align-items: center;
-	gap: 1em;
+  align-items: center;
+  gap: 1em;
+  opacity: 1; /* Fully visible by default */
+  visibility: visible; /* Ensure the element is visible */
+  transition: opacity 0.8s ease, visibility 0.8s ease; /* Smooth transition */
+}
+
+.filters li.hidden {
+  opacity: 0; /* Fade out */
+  visibility: hidden; /* Hide the element */
 }
 .filters li input {
 	margin: 0;
@@ -355,3 +388,73 @@ h2 + .header-anchor {
 	visibility: visible;
 	opacity: 1;
   }
+
+/* Style the select menu */
+.sort-group select {
+  appearance: none; /* Remove default browser styling */
+  -webkit-appearance: none; /* For Safari */
+  -moz-appearance: none; /* For Firefox */
+  background-color: var(--background-color);
+  border: 1px solid var(--color-gray-50);
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  color: var(--text-color);
+  cursor: pointer;
+  /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); */
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+}
+
+.sort-group select:focus {
+  outline: 2px solid var(--color-gray-50);
+  outline-offset: 2px;
+}
+
+/* Style the radio buttons */
+.filter-group input[type="radio"] {
+  appearance: none; /* Remove default styling */
+  -webkit-appearance: none; /* For Safari */
+  -moz-appearance: none; /* For Firefox */
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid var(--color-gray-50);
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  position: relative;
+}
+
+.filter-group input[type="radio"]:checked {
+  background-color: var(--text-color-link);
+  border-color: var(--text-color-link);
+}
+
+.filter-group input[type="radio"]::before {
+  content: "";
+  display: block;
+  width: 0.6rem;
+  height: 0.6rem;
+  background-color: var(--background-color);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.2s ease-in-out;
+}
+
+.filter-group input[type="radio"]:checked::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Add spacing and alignment for labels */
+.filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
