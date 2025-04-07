@@ -133,6 +133,25 @@ header:after {
 	clear: both;
 }
 
+.filters {
+	margin: 1em 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 1rem;
+	align-items: start;
+	font-size: smaller;
+}
+.filters li {
+	display: flex;
+	align-items: center;
+	gap: 1em;
+}
+.filters li input {
+	margin: 0;
+}
+
 .links-nextprev {
 	list-style: none;
 	border-top: 1px dashed var(--color-gray-20);

@@ -3,11 +3,59 @@ title: Home
 layout: layouts/home.njk
 js: /assets/js/copy-snippits.js
 ---
-	
+<div class="filters">
+<div class="sort-group">
+	<label for="sort-options">Sort by:</label>
+	<select id="sort-options">
+	  <option value="default" selected>Default (alphabetical)</option>
+	  <option value="color">Color (Hex Code)</option>
+	  <option value="brightness">Brightness</option>
+	  <option value="hue">Hue</option>
+	  <option value="saturation">Saturation</option>
+	</select>
+  </div>
+
+  <div class="filter-group">
+	<p>Filter by Palette:</p>
+	<label>
+	  <input type="radio" name="palette-filter" value="all" checked>
+	  All
+	</label>
+	<label>
+	  <input type="radio" name="palette-filter" value="palette1">
+	  🌌 Celestial Haze
+	</label>
+	<label>
+	  <input type="radio" name="palette-filter" value="palette2">
+	  🚀 Future vision
+	</label>
+	<label>
+	  <input type="radio" name="palette-filter" value="palette3">
+	  🌸 Sugar Rush
+	</label>
+	<label>
+	  <input type="radio" name="palette-filter" value="palette4">
+	  🌿 Soft botanicals
+	</label>
+	<label>
+	  <input type="radio" name="palette-filter" value="palette5">
+	  🌺 Retro pop
+	</label>
+	<label>
+	  <input type="radio" name="palette-filter" value="palette6">
+	  ☕️ Mid-Mod Mood
+	</label>
+	<label>
+	  <input type="radio" name="palette-filter" value="palette7">
+	  🕯️ Eldritch Archives
+	</label>
+  </div>
+</div>
+
 {% set crayonData = crayola -%}
-<ol class="crayons">
+<ol class="crayons" id="crayon-list">
 {% for crayon in crayola -%}
-<li>
+<li id="crayon-{{ crayon.hex | slugify }}">
   <figure>
     <svg
 	width="100%" 
