@@ -155,7 +155,7 @@ header:after {
     -webkit-backdrop-filter: blur(10px); /* Safari support */
 }
 
-@prefers-color-scheme: dark {
+@media (prefers-color-scheme: dark) {
 	.filters {
 		background-color: rgba(21, 32, 43, 0.8); 
 	}
