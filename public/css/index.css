@@ -2,7 +2,7 @@
 :root {
 	--font-family: -apple-system, system-ui, sans-serif;
 	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
-	--header-height: 2rem;
+	--header-height: 4rem;
 }
 
 /* Theme colors */
@@ -267,12 +267,13 @@ code {
 
 /* Header */
 header {
-	height: var(--header-height), 2rem;
+	height: var(--header-height);
 	display: flex;
 	gap: 1em .5em;
 	flex-wrap: wrap;
 	align-items: center;
 	padding: 1em;
+	justify-content: space-between;
 }
 .home-link {
 	font-size: 1em; /* 16px /16 */
