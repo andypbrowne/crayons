@@ -1,5 +1,5 @@
 module.exports = {
-	"title": "Andypbrowne",
+	"title": "Crayons",
 	"url": "https://crayons.andypbrowne.com/",
 	"language": "en",
 	"description": "Curated color palettes for creative projects",
