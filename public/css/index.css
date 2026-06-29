@@ -69,14 +69,44 @@ ol.crayons li {
 	align-items: center;
 	gap: 1.2rem;
 	justify-content: center;
+	content-visibility: auto;
+	contain-intrinsic-size: auto 4rem;
 }
 
 ol.crayons li figure {
 	margin: 0;
+	position: relative;
+	flex: 1;
+	min-width: 0;
 }
 
-ol.crayons li figure svg {
+.crayon-sprite {
+	position: absolute;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+}
+
+ol.crayons li figure svg.crayon-svg {
+	display: block;
 	width: 100%;
+	height: auto;
+}
+
+.crayon-label {
+	position: absolute;
+	right: 22%;
+	top: 41%;
+	transform: translateY(-50%);
+	font-size: clamp(0.65rem, 2.8vw, 1rem);
+	font-weight: 600;
+	line-height: 1;
+	pointer-events: none;
+	text-align: right;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 55%;
 }
 
 ol.crayons li button {
