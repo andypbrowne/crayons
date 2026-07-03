@@ -69,14 +69,47 @@ ol.crayons li {
 	align-items: center;
 	gap: 1.2rem;
 	justify-content: center;
+	content-visibility: auto;
+	contain-intrinsic-size: auto 4rem;
+	--crayon-wrapper: oklch(from var(--crayon-color) clamp(
+		0.76,
+		calc(l + clamp(-0.05, (0.62 - l) * 0.35, max(0, (0.52 - l) * 1.35))),
+		0.96
+	) c h);
+	--crayon-ink: color-mix(in oklch, var(--crayon-color) 42%, black);
 }
 
 ol.crayons li figure {
 	margin: 0;
+	position: relative;
 }
 
-ol.crayons li figure svg {
+.crayon-sprite {
+	position: absolute;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+}
+
+ol.crayons li figure svg.crayon-svg {
 	width: 100%;
+}
+
+.crayon-label {
+	position: absolute;
+	right: 22%;
+	top: 34%;
+	transform: translateY(-50%);
+	color: #000;
+	font-size: clamp(0.65rem, 2.8vw, 1rem);
+	font-weight: 600;
+	line-height: 1;
+	pointer-events: none;
+	text-align: right;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 55%;
 }
 
 ol.crayons li button {
@@ -142,25 +175,76 @@ header {
 .filters {
 	margin: 1em 0;
 	padding-block: 1rem;
-	list-style: none;
-	display: grid;
-	grid-template-columns: 1fr 2fr;
-	grid-template-columns: repeat(auto-fit, minmax(min-content, max-content)); /* Or grid-template-rows */
 	display: flex;
 	flex-flow: row wrap;
 	gap: 1rem;
 	align-items: start;
 	font-size: smaller;
-	/* Make the filters sticky */
 	position: sticky;
-	top: 0; /* Distance from the top of the viewport */
-	z-index: 1000; /* Ensure it stays above other elements */
-	background-color: var(--background-color); /* Match the page background */
-	background-color: rgba(255, 255, 255, 0.8); 
-    backdrop-filter: blur(10px); /* Apply blur effect */
-    -webkit-backdrop-filter: blur(10px); /* Safari support */
+	top: 0;
+	z-index: 1000;
+	background-color: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
 }
 
+.filters-panel-toggle {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.filters-toggle {
+	display: none;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.filters-toggle-icon {
+	width: 1.25rem;
+	height: 1.25rem;
+	flex-shrink: 0;
+}
+
+.filters-body {
+	display: flex;
+	flex-flow: row wrap;
+	gap: 1rem;
+	align-items: start;
+	width: 100%;
+}
+
+@media (max-width: 999px) {
+	.filters {
+		flex-flow: column;
+		padding-block: 0.5rem;
+		gap: 0;
+	}
+
+	.filters-toggle {
+		display: flex;
+		padding: 0.25rem 0;
+	}
+
+	.filters-body {
+		display: none;
+		padding-top: 0.75rem;
+	}
+
+	.filters-panel-toggle:checked ~ .filters-body {
+		display: flex;
+		flex-flow: column;
+	}
+}
 
 .filter-group {
 	display: grid;
@@ -216,14 +300,28 @@ button.copy-btn {
 	}
 	.filters {
 		flex-flow: column;
-		position:fixed;
-		top: 4rem;;
+		position: fixed;
+		top: 4rem;
+	}
+
+	.filters-toggle {
+		display: none;
+	}
+
+	.filters-body {
+		display: flex;
+		flex-flow: column;
+		gap: 1rem;
 	}
 	.filter-group {
 		grid-template-columns: 1fr;
 	}
 	ol.crayons {
 		margin-block-start: 4rem;
+	}
+
+	.crayon-label {
+		font-size: 0.7rem;
 	}
 }
 
