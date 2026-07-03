@@ -11,6 +11,7 @@ const markdownIt = require('markdown-it');
 
 const pluginDrafts = require("./eleventy.config.drafts.js");
 const pluginImages = require("./eleventy.config.images.js");
+const { crayonWrapperColor } = require("./utils/crayon-wrapper-color.js");
 
 /** @param {import('@11ty/eleventy').UserConfig} eleventyConfig */
 module.exports = function(eleventyConfig) {
@@ -88,6 +89,8 @@ module.exports = function(eleventyConfig) {
 	eleventyConfig.addFilter("filterTagList", function filterTagList(tags) {
 		return (tags || []).filter(tag => ["all", "nav", "post", "posts"].indexOf(tag) === -1);
 	});
+
+	eleventyConfig.addFilter("crayonWrapper", (hex) => crayonWrapperColor(hex));
 
 	// Customize Markdown library settings:
 	eleventyConfig.amendLibrary("md", mdLib => {
