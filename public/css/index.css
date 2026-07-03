@@ -71,7 +71,11 @@ ol.crayons li {
 	justify-content: center;
 	content-visibility: auto;
 	contain-intrinsic-size: auto 4rem;
-	--crayon-wrapper: oklch(from var(--crayon-color) calc(l + clamp(-0.05, (0.62 - l) * 0.18, 0.05)) c h);
+	--crayon-wrapper: oklch(from var(--crayon-color) clamp(
+		0.76,
+		calc(l + clamp(-0.05, (0.62 - l) * 0.35, max(0, (0.52 - l) * 1.35))),
+		0.96
+	) c h);
 	--crayon-ink: color-mix(in oklch, var(--crayon-color) 42%, black);
 }
 
@@ -96,7 +100,7 @@ ol.crayons li figure svg.crayon-svg {
 	right: 22%;
 	top: 34%;
 	transform: translateY(-50%);
-	color: var(--crayon-ink);
+	color: #000;
 	font-size: clamp(0.65rem, 2.8vw, 1rem);
 	font-weight: 600;
 	line-height: 1;
