@@ -78,8 +78,6 @@ ol.crayons li {
 ol.crayons li figure {
 	margin: 0;
 	position: relative;
-	flex: 1;
-	min-width: 0;
 }
 
 .crayon-sprite {
@@ -90,9 +88,7 @@ ol.crayons li figure {
 }
 
 ol.crayons li figure svg.crayon-svg {
-	display: block;
 	width: 100%;
-	height: auto;
 }
 
 .crayon-label {
