@@ -319,6 +319,10 @@ button.copy-btn {
 	ol.crayons {
 		margin-block-start: 4rem;
 	}
+
+	.crayon-label {
+		font-size: 0.7rem;
+	}
 }
 
 @media (prefers-color-scheme: dark) {
