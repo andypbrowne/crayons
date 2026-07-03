@@ -172,24 +172,62 @@ header {
 	margin: 1em 0;
 	padding-block: 1rem;
 	list-style: none;
-	display: grid;
-	grid-template-columns: 1fr 2fr;
-	grid-template-columns: repeat(auto-fit, minmax(min-content, max-content)); /* Or grid-template-rows */
 	display: flex;
 	flex-flow: row wrap;
 	gap: 1rem;
 	align-items: start;
 	font-size: smaller;
-	/* Make the filters sticky */
 	position: sticky;
-	top: 0; /* Distance from the top of the viewport */
-	z-index: 1000; /* Ensure it stays above other elements */
-	background-color: var(--background-color); /* Match the page background */
-	background-color: rgba(255, 255, 255, 0.8); 
-    backdrop-filter: blur(10px); /* Apply blur effect */
-    -webkit-backdrop-filter: blur(10px); /* Safari support */
+	top: 0;
+	z-index: 1000;
+	background-color: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
 }
 
+.filters-toggle {
+	display: none;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+	font-weight: 600;
+	list-style: none;
+}
+
+.filters-toggle::-webkit-details-marker {
+	display: none;
+}
+
+.filters-toggle-icon {
+	width: 1.25rem;
+	height: 1.25rem;
+	flex-shrink: 0;
+}
+
+.filters-body {
+	display: flex;
+	flex-flow: row wrap;
+	gap: 1rem;
+	align-items: start;
+	width: 100%;
+}
+
+@media (max-width: 999px) {
+	.filters {
+		flex-flow: column;
+		padding-block: 0.5rem;
+		gap: 0;
+	}
+
+	.filters-toggle {
+		display: flex;
+		padding: 0.25rem 0;
+	}
+
+	.filters-body {
+		padding-top: 0.75rem;
+	}
+}
 
 .filter-group {
 	display: grid;
@@ -245,8 +283,17 @@ button.copy-btn {
 	}
 	.filters {
 		flex-flow: column;
-		position:fixed;
-		top: 4rem;;
+		position: fixed;
+		top: 4rem;
+	}
+
+	.filters-toggle {
+		display: none;
+	}
+
+	.filters:not([open]) .filters-body,
+	.filters-body {
+		display: flex;
 	}
 	.filter-group {
 		grid-template-columns: 1fr;

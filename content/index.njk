@@ -4,7 +4,14 @@ layout: layouts/home.njk
 thumbnail: assets/images/thumb-crayons.png
 js: /assets/js/copy-snippits.js
 ---
-<div class="filters">
+<details class="filters">
+  <summary class="filters-toggle">
+    <svg class="filters-toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>Filters</span>
+  </summary>
+  <div class="filters-body">
 <div class="sort-group">
 	<label style="font-weight: bold; margin-inline-end: .6em" for="sort-options">Sort:</label>
 	<select class="sort" id="sort-options">
@@ -51,7 +58,8 @@ js: /assets/js/copy-snippits.js
 	  🕯️ Eldritch Archives
 	</label>
   </div>
-</div>
+  </div>
+</details>
 
 {% include "partials/crayon-sprite.njk" -%}
 <ol class="crayons" id="crayon-list">
