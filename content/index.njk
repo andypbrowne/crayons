@@ -4,13 +4,14 @@ layout: layouts/home.njk
 thumbnail: assets/images/thumb-crayons.png
 js: /assets/js/copy-snippits.js
 ---
-<details class="filters">
-  <summary class="filters-toggle">
+<div class="filters">
+  <input type="checkbox" id="filters-panel" class="filters-panel-toggle">
+  <label for="filters-panel" class="filters-toggle">
     <svg class="filters-toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
     </svg>
     <span>Filters</span>
-  </summary>
+  </label>
   <div class="filters-body">
 <div class="sort-group">
 	<label style="font-weight: bold; margin-inline-end: .6em" for="sort-options">Sort:</label>
@@ -59,7 +60,7 @@ js: /assets/js/copy-snippits.js
 	</label>
   </div>
   </div>
-</details>
+</div>
 
 {% include "partials/crayon-sprite.njk" -%}
 <ol class="crayons" id="crayon-list">
