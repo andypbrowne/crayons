@@ -94,7 +94,7 @@ ol.crayons li figure svg.crayon-svg {
 .crayon-label {
 	position: absolute;
 	right: 22%;
-	top: 38%;
+	top: 34%;
 	transform: translateY(-50%);
 	color: var(--crayon-ink);
 	font-size: clamp(0.65rem, 2.8vw, 1rem);
