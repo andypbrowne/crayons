@@ -24,21 +24,23 @@ export function initFilterUI({
   });
 
   if (toggleButton) {
-    toggleButton.addEventListener("click", () => {
+    toggleButton.addEventListener("click", (event) => {
+      event.preventDefault();
       collapsed = !collapsed;
-      toggleButton.textContent = collapsed ? "Show more" : "Show less";
-      toggleButton.setAttribute("aria-expanded", String(!collapsed));
       render(getState());
     });
   }
 
   function buildOptions(state) {
+    const activeFilter = state.sharedColors?.length ? "shared" : state.activeFilter;
+
     const options = [
       { value: "all", label: "All colors", alwaysVisible: true },
       ...PRESETS.map((preset, index) => ({
         value: preset.id,
         label: `${preset.emoji} ${preset.label} (${preset.colors.length})`,
-        alwaysVisible: index < COLLAPSED_PRESET_COUNT,
+        alwaysVisible:
+          index < COLLAPSED_PRESET_COUNT || preset.id === activeFilter,
       })),
     ];
 
@@ -53,15 +55,28 @@ export function initFilterUI({
     return options;
   }
 
+  function syncToggleButton() {
+    if (!toggleButton) return;
+
+    const canCollapse = PRESETS.length > COLLAPSED_PRESET_COUNT;
+    toggleButton.hidden = !canCollapse;
+    toggleButton.textContent = collapsed ? "Show more" : "Show less";
+    toggleButton.setAttribute("aria-expanded", String(!collapsed));
+  }
+
   function render(state) {
     filterGroup.innerHTML = "";
     const activeFilter = state.sharedColors?.length ? "shared" : state.activeFilter;
+
+    filterGroup.classList.toggle("is-collapsed", collapsed);
 
     buildOptions(state).forEach((option) => {
       const hidden = collapsed && !option.alwaysVisible;
       const label = document.createElement("label");
       label.className = "starter-palette-option";
-      if (hidden) label.hidden = true;
+      if (hidden) {
+        label.classList.add("is-collapsed-hidden");
+      }
 
       const input = document.createElement("input");
       input.type = "radio";
@@ -80,6 +95,8 @@ export function initFilterUI({
       label.appendChild(text);
       filterGroup.appendChild(label);
     });
+
+    syncToggleButton();
 
     if (sortOptions && sortOptions.value !== state.sort) {
       sortOptions.value = state.sort;

@@ -52,6 +52,15 @@ export function initRowMenus({ crayonList, paletteManager }) {
       const palette = getState().userPalettes.find((entry) => entry.id === paletteId);
       showToast(`Added to "${palette?.name ?? "palette"}".`);
       menu?.hidePopover?.();
+      return;
+    }
+
+    if (action === "remove-from-palette") {
+      const paletteId = actionButton.dataset.paletteId;
+      if (!paletteId) return;
+
+      paletteManager.removeColorFromPalette(paletteId, hex);
+      menu?.hidePopover?.();
     }
   });
 
@@ -65,19 +74,25 @@ export function initRowMenus({ crayonList, paletteManager }) {
         const hex = menu.dataset.hex;
 
         state.userPalettes.forEach((palette) => {
-          const isFull = palette.colors.length >= MAX_COLORS_PER_PALETTE;
           const alreadyAdded = palette.colors.includes(hex);
+          const isFull = palette.colors.length >= MAX_COLORS_PER_PALETTE;
           const button = document.createElement("button");
           button.type = "button";
           button.className = "row-actions-submenu-item";
-          button.dataset.action = "add-to-palette";
-          button.dataset.paletteId = palette.id;
-          button.disabled = isFull || alreadyAdded;
-          button.textContent = alreadyAdded
-            ? `${palette.name} ✓`
-            : isFull
+
+          if (alreadyAdded) {
+            button.dataset.action = "remove-from-palette";
+            button.dataset.paletteId = palette.id;
+            button.textContent = `Remove from ${palette.name}`;
+          } else {
+            button.dataset.action = "add-to-palette";
+            button.dataset.paletteId = palette.id;
+            button.disabled = isFull;
+            button.textContent = isFull
               ? `${palette.name} (full)`
               : palette.name;
+          }
+
           submenu.appendChild(button);
         });
 

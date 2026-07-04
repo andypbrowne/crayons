@@ -3,6 +3,7 @@ import {
   addColorToPalette,
   createPalette,
   deletePalette,
+  removeColorFromPalette,
   renamePalette,
   saveUserPalettes,
 } from "./user-palettes.js";
@@ -10,14 +11,32 @@ import { getState, setState } from "./app-state.js";
 import { showToast, copyText } from "./toast.js";
 import { buildShareUrl } from "./url-sync.js";
 
-function createColorTag(colors) {
+function createColorTag(colors, { removable = false, onRemove } = {}) {
   const tag = document.createElement("span");
   tag.className = "palette-color-tag";
   colors.forEach((hex) => {
+    const swatchWrap = document.createElement("span");
+    swatchWrap.className = "palette-color-tag-swatch-wrap";
+
     const swatch = document.createElement("span");
     swatch.className = "palette-color-tag-swatch";
     swatch.style.backgroundColor = hex;
-    tag.appendChild(swatch);
+    swatchWrap.appendChild(swatch);
+
+    if (removable) {
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "palette-color-tag-remove";
+      removeButton.setAttribute("aria-label", `Remove ${hex} from palette`);
+      removeButton.textContent = "×";
+      removeButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        onRemove?.(hex);
+      });
+      swatchWrap.appendChild(removeButton);
+    }
+
+    tag.appendChild(swatchWrap);
   });
   return tag;
 }
@@ -66,15 +85,38 @@ export function initPaletteManager({
 }) {
   if (!container) return { update() {} };
 
-  function persistPalettes(palettes, nextFilter) {
+  function persistPalettes(palettes, { nextFilter, selectedPaletteId } = {}) {
     saveUserPalettes(palettes);
     const updates = { userPalettes: palettes };
     if (nextFilter) {
       updates.activeFilter = nextFilter;
       updates.sharedColors = null;
     }
+    if (selectedPaletteId !== undefined) {
+      updates.selectedPaletteId = selectedPaletteId;
+    }
     setState(updates);
     onPalettesChange();
+  }
+
+  function removeColor(paletteId, hex) {
+    const state = getState();
+    const result = removeColorFromPalette(state.userPalettes, paletteId, hex);
+    if (!result.ok) {
+      showToast(result.error);
+      return;
+    }
+
+    const palette = result.palettes.find((entry) => entry.id === paletteId);
+    const isActiveFilter = state.activeFilter === `user:${paletteId}`;
+    const nextFilter =
+      isActiveFilter && !palette?.colors?.length ? "all" : undefined;
+
+    persistPalettes(result.palettes, {
+      nextFilter,
+      selectedPaletteId: palette?.colors?.length ? paletteId : null,
+    });
+    showToast("Color removed.");
   }
 
   function handleRename(palette) {
@@ -96,7 +138,9 @@ export function initPaletteManager({
     const state = getState();
     const result = deletePalette(state.userPalettes, palette.id);
     const nextFilter = state.activeFilter === `user:${palette.id}` ? "all" : state.activeFilter;
-    persistPalettes(result.palettes, nextFilter);
+    const nextSelected =
+      state.selectedPaletteId === palette.id ? null : state.selectedPaletteId;
+    persistPalettes(result.palettes, { nextFilter, selectedPaletteId: nextSelected });
     showToast("Palette deleted.");
   }
 
@@ -114,14 +158,16 @@ export function initPaletteManager({
         showToast(result.error);
         return;
       }
-      persistPalettes(result.palettes, `user:${result.palette.id}`);
-      showToast(`Created "${result.palette.name}".`);
+      persistPalettes(result.palettes, {
+        selectedPaletteId: result.palette.id,
+      });
+      showToast("Choose your colors from the list.");
     });
   }
 
   if (clearButton) {
     clearButton.addEventListener("click", () => {
-      setState({ activeFilter: "all", sharedColors: null });
+      setState({ activeFilter: "all", sharedColors: null, selectedPaletteId: null });
       onPalettesChange();
     });
   }
@@ -147,7 +193,10 @@ export function initPaletteManager({
         return;
       }
 
-      persistPalettes(result.palettes, `user:${result.palette.id}`);
+      persistPalettes(result.palettes, {
+        nextFilter: `user:${result.palette.id}`,
+        selectedPaletteId: result.palette.id,
+      });
       showToast(`Saved "${result.palette.name}".`);
     });
   }
@@ -165,13 +214,17 @@ export function initPaletteManager({
 
     state.userPalettes.forEach((palette) => {
       const isActive = state.activeFilter === `user:${palette.id}`;
+      const isSelected = state.selectedPaletteId === palette.id;
       const row = document.createElement("button");
       row.type = "button";
       row.className = "user-palette-row";
       if (isActive) row.classList.add("is-active");
-      row.setAttribute("aria-pressed", String(isActive));
+      if (isSelected) row.classList.add("is-selected");
 
-      const colorTag = createColorTag(palette.colors);
+      const colorTag = createColorTag(palette.colors, {
+        removable: palette.colors.length > 0,
+        onRemove: (hex) => removeColor(palette.id, hex),
+      });
       const name = document.createElement("span");
       name.className = "user-palette-name";
       name.textContent = `${palette.name} (${palette.colors.length})`;
@@ -187,8 +240,21 @@ export function initPaletteManager({
       actions.appendChild(menu);
 
       row.addEventListener("click", (event) => {
-        if (event.target.closest(".palette-kebab-btn, .palette-kebab-menu")) return;
+        if (
+          event.target.closest(
+            ".palette-kebab-btn, .palette-kebab-menu, .palette-color-tag-remove",
+          )
+        ) {
+          return;
+        }
+
+        if (palette.colors.length === 0) {
+          setState({ selectedPaletteId: palette.id });
+          return;
+        }
+
         onFilterChange(`user:${palette.id}`);
+        setState({ selectedPaletteId: palette.id });
       });
 
       row.appendChild(colorTag);
@@ -215,11 +281,18 @@ export function initPaletteManager({
       persistPalettes(result.palettes);
       return { ok: true };
     },
+    removeColorFromPalette(paletteId, hex) {
+      removeColor(paletteId, hex);
+      return { ok: true };
+    },
     createPaletteWithColor(name, hex) {
       const state = getState();
       const result = createPalette(state.userPalettes, name, hex ? [hex] : []);
       if (!result.ok) return result;
-      persistPalettes(result.palettes, `user:${result.palette.id}`);
+      persistPalettes(result.palettes, {
+        nextFilter: hex ? `user:${result.palette.id}` : undefined,
+        selectedPaletteId: result.palette.id,
+      });
       return result;
     },
   };

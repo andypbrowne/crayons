@@ -13,6 +13,7 @@ const state = {
   activeFilter: "all",
   sharedColors: null,
   userPalettes: [],
+  selectedPaletteId: null,
 };
 
 const listeners = new Set();
@@ -26,6 +27,7 @@ export function getState() {
       ...palette,
       colors: [...palette.colors],
     })),
+    selectedPaletteId: state.selectedPaletteId,
   };
 }
 
@@ -55,6 +57,9 @@ export function setState(partial) {
       colors: [...palette.colors],
     }));
   }
+  if (partial.selectedPaletteId !== undefined) {
+    state.selectedPaletteId = partial.selectedPaletteId;
+  }
   notify();
 }
 
@@ -72,7 +77,10 @@ export function getActiveColors(snapshot = null) {
   if (activeFilter.startsWith("user:")) {
     const id = activeFilter.slice(5);
     const palette = userPalettes.find((entry) => entry.id === id);
-    return palette?.colors?.length ? palette.colors : [];
+    if (!palette?.colors?.length) {
+      return null;
+    }
+    return palette.colors;
   }
   if (activeFilter === "shared") {
     return sharedColors?.length ? sharedColors : null;
