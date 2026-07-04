@@ -11,32 +11,14 @@ import { getState, setState } from "./app-state.js";
 import { showToast, copyText } from "./toast.js";
 import { buildShareUrl } from "./url-sync.js";
 
-function createColorTag(colors, { removable = false, onRemove } = {}) {
+function createColorTag(colors) {
   const tag = document.createElement("span");
   tag.className = "palette-color-tag";
   colors.forEach((hex) => {
-    const swatchWrap = document.createElement("span");
-    swatchWrap.className = "palette-color-tag-swatch-wrap";
-
     const swatch = document.createElement("span");
     swatch.className = "palette-color-tag-swatch";
     swatch.style.backgroundColor = hex;
-    swatchWrap.appendChild(swatch);
-
-    if (removable) {
-      const removeButton = document.createElement("button");
-      removeButton.type = "button";
-      removeButton.className = "palette-color-tag-remove";
-      removeButton.setAttribute("aria-label", `Remove ${hex} from palette`);
-      removeButton.textContent = "×";
-      removeButton.addEventListener("click", (event) => {
-        event.stopPropagation();
-        onRemove?.(hex);
-      });
-      swatchWrap.appendChild(removeButton);
-    }
-
-    tag.appendChild(swatchWrap);
+    tag.appendChild(swatch);
   });
   return tag;
 }
@@ -221,10 +203,7 @@ export function initPaletteManager({
       if (isActive) row.classList.add("is-active");
       if (isSelected) row.classList.add("is-selected");
 
-      const colorTag = createColorTag(palette.colors, {
-        removable: palette.colors.length > 0,
-        onRemove: (hex) => removeColor(palette.id, hex),
-      });
+      const colorTag = createColorTag(palette.colors);
       const name = document.createElement("span");
       name.className = "user-palette-name";
       name.textContent = `${palette.name} (${palette.colors.length})`;
@@ -240,13 +219,7 @@ export function initPaletteManager({
       actions.appendChild(menu);
 
       row.addEventListener("click", (event) => {
-        if (
-          event.target.closest(
-            ".palette-kebab-btn, .palette-kebab-menu, .palette-color-tag-remove",
-          )
-        ) {
-          return;
-        }
+        if (event.target.closest(".palette-kebab-btn, .palette-kebab-menu")) return;
 
         if (palette.colors.length === 0) {
           setState({ selectedPaletteId: palette.id });
