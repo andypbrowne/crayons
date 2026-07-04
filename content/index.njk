@@ -74,8 +74,9 @@ js: /assets/js/copy-snippits.js
     </svg>
     <span class="crayon-label">{{ crayon.color }}</span>
   </figure>
-  <button class="copy-btn" data-snippet-id="snippet-{{ crayon.hex }}">
+  <button class="copy-btn" data-snippet-id="snippet-{{ crayon.hex }}" aria-label="Copy hex code">
 	<code id="snippet-{{ crayon.hex }}">{{ crayon.hex }}</code>
+	<span class="copy-tooltip" popover="hint">Copy hex code</span>
   </button>
 </li>
 {% endfor %}

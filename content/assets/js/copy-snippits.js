@@ -1,41 +1,84 @@
 document.addEventListener("DOMContentLoaded", () => {
   const buttons = document.querySelectorAll(".copy-btn");
-  console.log(`Found ${buttons.length} copy buttons`);
+  const desktopQuery = window.matchMedia("(min-width: 1000px)");
+  const supportsPopover = Object.hasOwn(HTMLElement.prototype, "popover");
+  const supportsInterestInvokers = Object.hasOwn(
+    HTMLButtonElement.prototype,
+    "interestForElement",
+  );
+
+  function setupCopyTooltips() {
+    if (!supportsPopover) return;
+
+    buttons.forEach((button) => {
+      const tooltip = button.querySelector(".copy-tooltip");
+      if (!tooltip) return;
+
+      if (supportsInterestInvokers) {
+        button.interestForElement = desktopQuery.matches ? tooltip : null;
+        return;
+      }
+
+      if (button.dataset.hintBound) return;
+      button.dataset.hintBound = "true";
+
+      const showTooltip = () => {
+        if (!desktopQuery.matches || tooltip.matches(":popover-open")) return;
+        tooltip.showPopover({ source: button });
+      };
+
+      const hideTooltip = () => {
+        if (tooltip.matches(":popover-open")) tooltip.hidePopover();
+      };
+
+      button.addEventListener("mouseover", showTooltip);
+      button.addEventListener("mouseout", hideTooltip);
+      button.addEventListener("focus", showTooltip);
+      button.addEventListener("blur", hideTooltip);
+    });
+  }
+
+  setupCopyTooltips();
+  desktopQuery.addEventListener("change", () => {
+    buttons.forEach((button) => {
+      const tooltip = button.querySelector(".copy-tooltip");
+      if (!tooltip) return;
+
+      if (supportsInterestInvokers) {
+        button.interestForElement = desktopQuery.matches ? tooltip : null;
+      }
+
+      if (!desktopQuery.matches && tooltip.matches(":popover-open")) {
+        tooltip.hidePopover();
+      }
+    });
+  });
 
   buttons.forEach((button) => {
     button.addEventListener("click", () => {
       const snippetId = button.getAttribute("data-snippet-id");
       const snippet = document.getElementById(snippetId);
-      if (snippet) {
-        const textToCopy = snippet.textContent;
-        navigator.clipboard.writeText(textToCopy).then(() => {
-          const tooltip = document.createElement("div");
-          tooltip.textContent = "Copied!";
-          tooltip.style.position = "absolute";
-          tooltip.style.top = "-30px";
-          tooltip.style.left = "50%";
-          tooltip.style.transform = "translateX(-50%)";
-          tooltip.style.backgroundColor = "black";
-          tooltip.style.color = "white";
-          tooltip.style.padding = "5px 10px";
-          tooltip.style.borderRadius = "4px";
-          tooltip.style.fontSize = "0.8rem";
-          tooltip.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
-          tooltip.style.zIndex = "1000";
-          tooltip.style.pointerEvents = "none";
-
-          button.style.position = "relative";
-          button.appendChild(tooltip);
-
-          setTimeout(() => {
-            tooltip.remove();
-          }, 2000);
-        }).catch((err) => {
-          console.error("Failed to copy text: ", err);
-        });
-      } else {
+      const tooltip = button.querySelector(".copy-tooltip");
+      if (!snippet) {
         console.error(`Snippet with ID ${snippetId} not found`);
+        return;
       }
+
+      const textToCopy = snippet.textContent;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        if (!supportsPopover || !tooltip) return;
+
+        const originalText = tooltip.textContent;
+        if (tooltip.matches(":popover-open")) tooltip.hidePopover();
+        tooltip.textContent = "Copied!";
+        tooltip.showPopover({ source: button });
+        setTimeout(() => {
+          if (tooltip.matches(":popover-open")) tooltip.hidePopover();
+          tooltip.textContent = originalText;
+        }, 2000);
+      }).catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
     });
   });
 

@@ -493,45 +493,42 @@ h2 + .header-anchor {
 	font-size: 1.5em;
 }
 
-/* tooltip css */
+/* copy button hint tooltip — popover API, large screens only */
 
-.tooltip {
-	position: relative;
-	display: inline-block;
+@media (min-width: 1000px) {
+  button.copy-btn {
+    interest-delay: 300ms 100ms;
   }
-  
-  .tooltip .tooltiptext {
-	visibility: hidden;
-	width: 140px;
-	background-color: #555;
-	color: #fff;
-	text-align: center;
-	border-radius: 6px;
-	padding: 5px;
-	position: absolute;
-	z-index: 1;
-	bottom: 150%;
-	left: 50%;
-	margin-left: -75px;
-	opacity: 0;
-	transition: opacity 0.3s;
+
+  .copy-tooltip {
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #1f2328;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.75rem;
+    line-height: 1.333;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
+    inset: auto;
+    position-area: top;
+    overflow: visible;
+    pointer-events: none;
   }
-  
-  .tooltip .tooltiptext::after {
-	content: "";
-	position: absolute;
-	top: 100%;
-	left: 50%;
-	margin-left: -5px;
-	border-width: 5px;
-	border-style: solid;
-	border-color: #555 transparent transparent transparent;
+
+  .copy-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    translate: -50% 0;
+    border: 6px solid transparent;
+    border-top-color: #1f2328;
   }
-  
-  .tooltip:hover .tooltiptext {
-	visibility: visible;
-	opacity: 1;
-  }
+}
 
 /* Style the select menu */
 .sort-group select {
@@ -553,6 +550,14 @@ h2 + .header-anchor {
 .sort-group select:focus {
   outline: 2px solid var(--color-gray-50);
   outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sort-group select,
+  .sort-group select option {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
 }
 
 /* Style the radio buttons */
