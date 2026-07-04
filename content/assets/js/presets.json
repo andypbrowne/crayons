@@ -1,0 +1,44 @@
+[
+  {
+    "id": "palette1",
+    "label": "Celestial Haze",
+    "emoji": "🌌",
+    "colors": ["#1A4876", "#7442C8", "#A2ADD0", "#1F75FE", "#FFCFAB"]
+  },
+  {
+    "id": "palette2",
+    "label": "Future vision",
+    "emoji": "🚀",
+    "colors": ["#FFA474", "#CEFF1D", "#FF1DCE", "#FEFE22", "#1FCECB"]
+  },
+  {
+    "id": "palette3",
+    "label": "Sugar Rush",
+    "emoji": "🌸",
+    "colors": ["#FFBCD9", "#FDDDE6", "#EF98AA", "#FC89AC", "#FFBD88"]
+  },
+  {
+    "id": "palette4",
+    "label": "Soft botanicals",
+    "emoji": "🌿",
+    "colors": ["#71BC78", "#87A96B", "#FFFF99", "#EFCDB8", "#FFCFAB"]
+  },
+  {
+    "id": "palette5",
+    "label": "Retro pop",
+    "emoji": "🌺",
+    "colors": ["#EA7E5D", "#FCD975", "#E6A8D7", "#1CA9C9", "#C364C5"]
+  },
+  {
+    "id": "palette6",
+    "label": "Mid-Mod Mood",
+    "emoji": "☕️",
+    "colors": ["#FF5349", "#E7C697", "#93DFB8", "#80DAEB", "#D68A59"]
+  },
+  {
+    "id": "palette7",
+    "label": "Eldritch Archives",
+    "emoji": "🕯️",
+    "colors": ["#1A4876", "#9D81BA", "#8A795D", "#C0448F", "#CDA4DE"]
+  }
+]

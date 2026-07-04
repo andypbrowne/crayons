@@ -14,6 +14,16 @@ const pluginImages = require("./eleventy.config.images.js");
 
 /** @param {import('@11ty/eleventy').UserConfig} eleventyConfig */
 module.exports = function(eleventyConfig) {
+	const fs = require("fs");
+	const path = require("path");
+
+	eleventyConfig.addGlobalData("presetPalettes", () => {
+		const presetPath = path.join(__dirname, "content/assets/js/presets.json");
+		return JSON.parse(fs.readFileSync(presetPath, "utf8"));
+	});
+
+	eleventyConfig.addFilter("toJson", (value) => JSON.stringify(value));
+
 	// Copy the contents of the `public` folder to the output folder
 	// For example, `./public/css/` ends up in `_site/css/`
 	eleventyConfig.addPassthroughCopy({

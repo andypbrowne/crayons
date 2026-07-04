@@ -3,17 +3,91 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>{{ metadata.title }}</title>
+		<title>{% if shareMeta %}Crayons{% else %}{{ title or metadata.title }}{% endif %}</title>
 		<meta name="description" content="{{ description or metadata.description }}">
-		<link rel="icon" type="image/png" href="/img/favicon.png">
 
 		{# SEO and social share properties #}
-		<meta property="og:title" content="{{ title or renderData.title or metadata.title }}"/>
-		<meta property="og:type" content="article" />
-		<meta name="og:description" content="{{ description or renderData.description }}" />
-		<meta property="og:image" content="/{{ thumbnail or renderData.thumbnail or metadata.thumbnail}}">
-		<meta name="twitter:image:alt" content="{{ thumbnailAlt or renderData.thumbnailAlt or metadata.thumbnailAlt }}">
-		<meta property="og:url" content="{{ page.url }}">
+		<meta property="og:title" content="{% if shareMeta %}Crayons{% else %}{{ title or renderData.title or metadata.title }}{% endif %}"/>
+		<meta property="og:type" content="{% if shareMeta %}website{% else %}article{% endif %}" />
+		<meta property="og:description" content="{{ description or metadata.description }}" />
+		<meta property="og:image" content="{{ metadata.url }}og">
+		<meta property="og:url" content="{{ metadata.url }}{% if page.url != '/' %}{{ page.url | url }}{% endif %}">
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="{% if shareMeta %}Crayons{% else %}{{ title or renderData.title or metadata.title }}{% endif %}">
+		<meta name="twitter:description" content="{{ description or metadata.description }}">
+		<meta name="twitter:image" content="{{ metadata.url }}og">
+		<meta name="twitter:image:alt" content="{{ thumbnailAlt or renderData.thumbnailAlt or metadata.description }}">
+
+		{% if shareMeta %}
+		<script id="presets-bootstrap" type="application/json">{{ presetPalettes | toJson | safe }}</script>
+		<script>
+		(function () {
+			var presets = JSON.parse(document.getElementById("presets-bootstrap").textContent);
+			var params = new URLSearchParams(window.location.search);
+			var colorsParam = params.get("colors");
+			var paletteParam = params.get("palette");
+			var context = { label: "Curated color palettes", colors: presets[0].colors.slice(0, 5), view: "all" };
+
+			if (colorsParam) {
+				var colors = colorsParam.split(",").map(function (part) {
+					var raw = part.trim().replace(/^#/, "").toUpperCase();
+					return /^[0-9A-F]{6}$/.test(raw) ? "#" + raw : null;
+				}).filter(Boolean).slice(0, 5);
+				if (colors.length) {
+					context = { label: params.get("label") || "Custom palette", colors: colors, view: "custom" };
+				}
+			} else if (paletteParam && paletteParam !== "all" && paletteParam.indexOf("user:") !== 0) {
+				var preset = presets.find(function (entry) { return entry.id === paletteParam; });
+				if (preset) {
+					context = { label: preset.emoji + " " + preset.label, colors: preset.colors.slice(0, 5), view: "preset", paletteId: preset.id };
+				}
+			} else if (paletteParam && paletteParam.indexOf("user:") === 0) {
+				context = { label: params.get("label") || "My palette", colors: [], view: "user" };
+			}
+
+			var description = context.view === "all"
+				? "Browse all Crayola colors with curated starter palettes for creative projects."
+				: context.view === "preset"
+					? context.label + " — a curated palette of " + context.colors.length + " Crayola colors."
+					: context.label + (context.colors.length ? " — a custom palette of " + context.colors.length + " Crayola colors." : " — a custom Crayola palette.");
+
+			var imageParams = new URLSearchParams();
+			if (context.paletteId) {
+				imageParams.set("palette", context.paletteId);
+			} else if (context.colors.length) {
+				imageParams.set("colors", context.colors.map(function (hex) { return hex.slice(1); }).join(","));
+			}
+			if (context.label) imageParams.set("label", context.label);
+
+			var origin = window.location.origin;
+			var imageUrl = imageParams.toString() ? origin + "/og?" + imageParams.toString() : origin + "/og";
+			var pageUrl = window.location.href;
+
+			function setMeta(selector, value, attr) {
+				var tag = document.head.querySelector(selector);
+				if (!tag) {
+					tag = document.createElement("meta");
+					tag.setAttribute(attr, selector.match(/"([^"]+)"/)[1]);
+					document.head.appendChild(tag);
+				}
+				tag.setAttribute("content", value);
+			}
+
+			document.title = "Crayons";
+			setMeta('meta[name="description"]', description, "name");
+			setMeta('meta[property="og:title"]', "Crayons", "property");
+			setMeta('meta[property="og:description"]', description, "property");
+			setMeta('meta[property="og:image"]', imageUrl, "property");
+			setMeta('meta[property="og:url"]', pageUrl, "property");
+			setMeta('meta[name="twitter:title"]', "Crayons", "name");
+			setMeta('meta[name="twitter:description"]', description, "name");
+			setMeta('meta[name="twitter:image"]', imageUrl, "name");
+			setMeta('meta[name="twitter:image:alt"]', description, "name");
+		})();
+		</script>
+		{% endif %}
+
+		<link rel="icon" type="image/png" href="/img/favicon.png">
 		
 		{#- Atom and JSON feeds included by default #}
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="{{ metadata.title }}">

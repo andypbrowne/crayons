@@ -2,6 +2,11 @@
 	publish = "_site"
 	command = "npm run build"
 
+[[redirects]]
+	from = "/og"
+	to = "/.netlify/functions/og"
+	status = 200
+
 [[plugins]]
 
 	# Opt-in to the Netlify Lighthouse plugin (choose one):
