@@ -6,12 +6,18 @@ js: /assets/js/main.js
 ---
 <div class="filters">
   <input type="checkbox" id="filters-panel" class="filters-panel-toggle">
-  <label for="filters-panel" class="filters-toggle">
-    <svg class="filters-toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6 9h12M8 12h8M10 15h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-    <span>Filters</span>
-  </label>
+  <div class="filters-toggle-bar">
+    <label for="filters-panel" class="filters-toggle">
+      <span class="filters-toggle-icon kebab-btn" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="6" cy="7" r="2" fill="currentColor"/>
+          <circle cx="14" cy="7" r="2" fill="currentColor"/>
+          <circle cx="10" cy="13" r="2" fill="currentColor"/>
+        </svg>
+      </span>
+      <span>Filters</span>
+    </label>
+  </div>
 
   <aside class="filter-panel" id="filter-panel" aria-label="Filters">
     <div class="filter-panel-top-bar">
