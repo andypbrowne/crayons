@@ -580,14 +580,16 @@ header {
 	.filters {
 		margin: -1rem -1rem 1em;
 		padding: 0;
-		gap: 0.75rem;
+		gap: 0;
 	}
 
 	.filters-toggle-bar {
 		display: block;
 		width: 100%;
 		padding: 0.75rem 1rem;
-		background-color: var(--background-color);
+		background-color: rgba(255, 255, 255, 0.8);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
 		border-bottom: 1px dashed var(--color-gray-20);
 	}
 
@@ -602,7 +604,14 @@ header {
 
 	.filter-panel {
 		display: none;
-		margin-inline: 1rem;
+		width: 100%;
+		max-width: 100%;
+		margin-inline: 0;
+		border-inline: 0;
+		border-radius: 0;
+		background-color: rgba(255, 255, 255, 0.8);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
 	}
 
 	.filters-panel-toggle:checked ~ .filter-panel {
@@ -784,6 +793,10 @@ ol.crayons li button.row-actions-btn {
 	}
 
 	.filters-toggle-bar {
+		background-color: rgba(21, 32, 43, 0.8);
+	}
+
+	.filter-panel {
 		background-color: rgba(21, 32, 43, 0.8);
 	}
 
