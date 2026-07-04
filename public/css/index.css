@@ -112,6 +112,10 @@ ol.crayons li figure svg.crayon-svg {
 	max-width: 55%;
 }
 
+ol.crayons li[hidden] {
+	display: none !important;
+}
+
 ol.crayons li button {
 	padding: .5em 1.2em;
 	/* max-width: 90px; */
@@ -269,14 +273,189 @@ header {
 	margin: 0;
 }
 
-button.copy-btn {
+button.copy-btn,
+button.row-actions-btn {
 	padding: .5em 1.2em;
-	/* max-width: 90px; */
 	height: 2.2rem;
 	background-color: var(--color-gray-20);
 	border-radius: 4px;
-	border: 1pix solid var(--color-gray-50);
+	border: 1px solid var(--color-gray-50);
 	cursor: pointer;
+	font: inherit;
+	color: inherit;
+}
+
+button.row-actions-btn {
+	min-width: 2.75rem;
+	padding-inline: 0.75rem;
+	font-size: 1.25rem;
+	line-height: 1;
+}
+
+.row-actions-menu {
+	margin: 0;
+	padding: 0.35rem;
+	border: 1px solid var(--color-gray-50);
+	border-radius: 8px;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	box-shadow: 0 8px 24px rgb(0 0 0 / 15%);
+	min-width: 12rem;
+	inset: auto;
+	position-area: bottom;
+}
+
+.row-actions-item,
+.row-actions-submenu-item {
+	display: block;
+	width: 100%;
+	padding: 0.5rem 0.75rem;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.row-actions-item:hover,
+.row-actions-submenu-item:hover:not(:disabled) {
+	background-color: var(--color-gray-20);
+}
+
+.row-actions-submenu-item:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.row-actions-submenu-label {
+	padding: 0.35rem 0.75rem 0.15rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--color-gray-50);
+}
+
+.palette-tools,
+.share-bar,
+.palette-create-form,
+.palette-manager {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+	width: 100%;
+}
+
+.palette-create-form input {
+	flex: 1 1 12rem;
+	min-width: 0;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid var(--color-gray-50);
+	border-radius: 4px;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	font: inherit;
+}
+
+.palette-create-btn,
+.copy-link-btn,
+.save-shared-btn,
+.palette-rename-btn,
+.palette-delete-btn {
+	padding: 0.5rem 0.75rem;
+	border: 1px solid var(--color-gray-50);
+	border-radius: 4px;
+	background-color: var(--color-gray-20);
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.palette-manager {
+	flex-direction: column;
+	align-items: stretch;
+	padding: 0.75rem;
+	border: 1px dashed var(--color-gray-50);
+	border-radius: 8px;
+}
+
+.palette-manager-header,
+.palette-manager-actions {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.75rem;
+	width: 100%;
+}
+
+.palette-count,
+.palette-empty-note {
+	font-size: 0.875rem;
+	color: var(--color-gray-50);
+}
+
+.palette-swatch-strip {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	width: 100%;
+}
+
+.palette-swatch {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.25rem 0.5rem;
+	border: 1px solid var(--color-gray-50);
+	border-radius: 999px;
+	background-color: var(--background-color);
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.palette-swatch-color {
+	width: 1rem;
+	height: 1rem;
+	border-radius: 50%;
+	background-color: var(--swatch-color);
+	border: 1px solid rgb(0 0 0 / 10%);
+}
+
+.filter-group-heading,
+.filter-group-divider {
+	grid-column: 1 / -1;
+	margin: 0;
+	font-weight: 600;
+}
+
+.filter-group-divider {
+	margin-top: 0.25rem;
+	padding-top: 0.75rem;
+	border-top: 1px dashed var(--color-gray-50);
+}
+
+.crayon-list-empty {
+	margin: 1rem 0 0;
+	padding: 1rem;
+	border: 1px dashed var(--color-gray-50);
+	border-radius: 8px;
+	text-align: center;
+}
+
+.app-toast {
+	position: fixed;
+	right: 1rem;
+	bottom: 1rem;
+	z-index: 2000;
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	background-color: #1f2328;
+	color: #fff;
+	box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
 }
 
 .links-nextprev {
@@ -493,40 +672,19 @@ h2 + .header-anchor {
 	font-size: 1.5em;
 }
 
-/* copy button hint tooltip — popover API, large screens only */
+/* row actions menu positioning */
 
 @media (min-width: 1000px) {
-  button.copy-btn {
-    interest-delay: 300ms 100ms;
+  .row-actions-menu {
+    position-area: bottom;
   }
+}
 
-  .copy-tooltip {
-    margin: 0;
-    padding: 0.5rem 0.75rem;
-    border: none;
-    border-radius: 8px;
-    background-color: #1f2328;
-    color: #fff;
-    font-family: inherit;
-    font-size: 0.75rem;
-    line-height: 1.333;
-    text-align: center;
-    white-space: nowrap;
-    box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
-    inset: auto;
-    position-area: top;
-    overflow: visible;
-    pointer-events: none;
-  }
-
-  .copy-tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    translate: -50% 0;
-    border: 6px solid transparent;
-    border-top-color: #1f2328;
+@media (prefers-color-scheme: dark) {
+  .palette-create-form input,
+  .row-actions-menu {
+    background-color: var(--background-color);
+    color: var(--text-color);
   }
 }
 
