@@ -1,10 +1,8 @@
 import {
-  MAX_COLORS_PER_PALETTE,
   MAX_PALETTES,
   addColorToPalette,
   createPalette,
   deletePalette,
-  removeColorFromPalette,
   renamePalette,
   saveUserPalettes,
 } from "./user-palettes.js";
@@ -12,196 +10,197 @@ import { getState, setState } from "./app-state.js";
 import { showToast, copyText } from "./toast.js";
 import { buildShareUrl } from "./url-sync.js";
 
+function createColorTag(colors) {
+  const tag = document.createElement("span");
+  tag.className = "palette-color-tag";
+  colors.forEach((hex) => {
+    const swatch = document.createElement("span");
+    swatch.className = "palette-color-tag-swatch";
+    swatch.style.backgroundColor = hex;
+    tag.appendChild(swatch);
+  });
+  return tag;
+}
+
+function createKebabMenu(palette, { onRename, onDelete }) {
+  const menuId = `palette-menu-${palette.id}`;
+  const trigger = document.createElement("button");
+  trigger.type = "button";
+  trigger.className = "palette-kebab-btn kebab-btn";
+  trigger.setAttribute("popovertarget", menuId);
+  trigger.setAttribute("aria-label", `Actions for ${palette.name}`);
+  trigger.addEventListener("click", (event) => event.stopPropagation());
+  trigger.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="34" viewBox="0 0 20 34" aria-hidden="true"><circle cx="10" cy="8" r="2" fill="currentColor"/><circle cx="10" cy="17" r="2" fill="currentColor"/><circle cx="10" cy="26" r="2" fill="currentColor"/></svg>`;
+
+  const menu = document.createElement("div");
+  menu.className = "palette-kebab-menu";
+  menu.popover = "auto";
+  menu.id = menuId;
+  menu.role = "menu";
+  menu.innerHTML = `
+    <button type="button" class="palette-kebab-item" data-action="rename" role="menuitem">Rename</button>
+    <hr class="palette-kebab-divider">
+    <button type="button" class="palette-kebab-item palette-kebab-item-danger" data-action="delete" role="menuitem">Delete</button>
+  `;
+
+  menu.addEventListener("click", (event) => {
+    const action = event.target.closest("[data-action]")?.dataset.action;
+    if (!action) return;
+    menu.hidePopover?.();
+    if (action === "rename") onRename();
+    if (action === "delete") onDelete();
+  });
+
+  return { trigger, menu };
+}
+
 export function initPaletteManager({
   container,
+  newPaletteButton,
+  clearButton,
+  copyLinkButton,
+  saveSharedButton,
   validHexSet,
+  onFilterChange,
   onPalettesChange,
 }) {
   if (!container) return { update() {} };
-
-  const createForm = document.createElement("div");
-  createForm.className = "palette-create-form";
-  createForm.innerHTML = `
-    <label class="visually-hidden" for="new-palette-name">New palette name</label>
-    <input type="text" id="new-palette-name" maxlength="64" placeholder="New palette name">
-    <button type="button" class="palette-create-btn">Create palette</button>
-  `;
-
-  const manager = document.createElement("div");
-  manager.className = "palette-manager";
-  manager.hidden = true;
-
-  const shareBar = document.createElement("div");
-  shareBar.className = "share-bar";
-  shareBar.innerHTML = `
-    <button type="button" class="copy-link-btn">Copy link</button>
-    <button type="button" class="save-shared-btn" hidden>Save as palette</button>
-  `;
-
-  container.appendChild(shareBar);
-  container.appendChild(createForm);
-  container.appendChild(manager);
-
-  const nameInput = createForm.querySelector("#new-palette-name");
-  const createBtn = createForm.querySelector(".palette-create-btn");
-  const copyLinkBtn = shareBar.querySelector(".copy-link-btn");
-  const saveSharedBtn = shareBar.querySelector(".save-shared-btn");
-
-  createBtn.addEventListener("click", () => {
-    const state = getState();
-    const result = createPalette(state.userPalettes, nameInput.value);
-    if (!result.ok) {
-      showToast(result.error);
-      return;
-    }
-    nameInput.value = "";
-    persistPalettes(result.palettes, `user:${result.palette.id}`);
-    showToast(`Created "${result.palette.name}".`);
-  });
-
-  copyLinkBtn.addEventListener("click", () => {
-    copyText(buildShareUrl(getState()), "Link copied!");
-  });
-
-  saveSharedBtn.addEventListener("click", () => {
-    const state = getState();
-    if (!state.sharedColors?.length) return;
-
-    const suggestedName = `Shared palette (${state.sharedColors.length})`;
-    const name = window.prompt("Name this palette", suggestedName);
-    if (name === null) return;
-
-    const result = createPalette(state.userPalettes, name, state.sharedColors);
-    if (!result.ok) {
-      showToast(result.error);
-      return;
-    }
-
-    persistPalettes(result.palettes, `user:${result.palette.id}`);
-    setState({
-      activeFilter: `user:${result.palette.id}`,
-      sharedColors: null,
-    });
-    onPalettesChange();
-    showToast(`Saved "${result.palette.name}".`);
-  });
 
   function persistPalettes(palettes, nextFilter) {
     saveUserPalettes(palettes);
     const updates = { userPalettes: palettes };
     if (nextFilter) {
       updates.activeFilter = nextFilter;
-      if (!nextFilter.startsWith("user:")) {
-        updates.sharedColors = null;
-      } else {
-        updates.sharedColors = null;
-      }
+      updates.sharedColors = null;
     }
     setState(updates);
     onPalettesChange();
   }
 
-  function renderManager(state) {
-    const activeUserId = state.activeFilter.startsWith("user:")
-      ? state.activeFilter.slice(5)
-      : null;
-    const activePalette = activeUserId
-      ? state.userPalettes.find((palette) => palette.id === activeUserId)
-      : null;
-
-    saveSharedBtn.hidden = !(state.activeFilter === "shared" && state.sharedColors?.length);
-    createBtn.disabled = state.userPalettes.length >= MAX_PALETTES;
-    nameInput.disabled = state.userPalettes.length >= MAX_PALETTES;
-
-    if (!activePalette) {
-      manager.hidden = true;
-      manager.innerHTML = "";
+  function handleRename(palette) {
+    const nextName = window.prompt("Rename palette", palette.name);
+    if (nextName === null) return;
+    const state = getState();
+    const result = renamePalette(state.userPalettes, palette.id, nextName);
+    if (!result.ok) {
+      showToast(result.error);
       return;
     }
+    persistPalettes(result.palettes);
+    showToast("Palette renamed.");
+  }
 
-    manager.hidden = false;
-    manager.innerHTML = `
-      <div class="palette-manager-header">
-        <strong>${activePalette.name}</strong>
-        <span class="palette-count">${activePalette.colors.length}/${MAX_COLORS_PER_PALETTE}</span>
-      </div>
-      <div class="palette-manager-actions">
-        <button type="button" class="palette-rename-btn">Rename</button>
-        <button type="button" class="palette-delete-btn">Delete</button>
-      </div>
-      <div class="palette-swatch-strip" aria-label="Palette colors"></div>
-    `;
+  function handleDelete(palette) {
+    const confirmed = window.confirm(`Delete "${palette.name}"?`);
+    if (!confirmed) return;
+    const state = getState();
+    const result = deletePalette(state.userPalettes, palette.id);
+    const nextFilter = state.activeFilter === `user:${palette.id}` ? "all" : state.activeFilter;
+    persistPalettes(result.palettes, nextFilter);
+    showToast("Palette deleted.");
+  }
 
-    const swatchStrip = manager.querySelector(".palette-swatch-strip");
-    if (!activePalette.colors.length) {
-      const empty = document.createElement("p");
-      empty.className = "palette-empty-note";
-      empty.textContent = "No colors yet. Use the row menu to add crayons.";
-      swatchStrip.appendChild(empty);
-    } else {
-      activePalette.colors.forEach((hex) => {
-        const swatch = document.createElement("button");
-        swatch.type = "button";
-        swatch.className = "palette-swatch";
-        swatch.style.setProperty("--swatch-color", hex);
-        swatch.title = `Remove ${hex}`;
-        swatch.setAttribute("aria-label", `Remove ${hex}`);
-        swatch.innerHTML = `<span class="palette-swatch-color"></span><span class="palette-swatch-label">${hex}</span><span aria-hidden="true">×</span>`;
-        swatch.addEventListener("click", () => {
-          const result = removeColorFromPalette(state.userPalettes, activePalette.id, hex);
-          if (!result.ok) {
-            showToast(result.error);
-            return;
-          }
-          persistPalettes(result.palettes, state.activeFilter);
-          showToast(`Removed ${hex}.`);
-        });
-        swatchStrip.appendChild(swatch);
-      });
-    }
-
-    manager.querySelector(".palette-rename-btn").addEventListener("click", () => {
-      const nextName = window.prompt("Rename palette", activePalette.name);
-      if (nextName === null) return;
-      const result = renamePalette(state.userPalettes, activePalette.id, nextName);
+  if (newPaletteButton) {
+    newPaletteButton.addEventListener("click", () => {
+      const state = getState();
+      if (state.userPalettes.length >= MAX_PALETTES) {
+        showToast("You can save up to 10 palettes.");
+        return;
+      }
+      const name = window.prompt("Name your new palette");
+      if (name === null) return;
+      const result = createPalette(state.userPalettes, name);
       if (!result.ok) {
         showToast(result.error);
         return;
       }
-      persistPalettes(result.palettes);
-      showToast("Palette renamed.");
+      persistPalettes(result.palettes, `user:${result.palette.id}`);
+      showToast(`Created "${result.palette.name}".`);
     });
+  }
 
-    manager.querySelector(".palette-delete-btn").addEventListener("click", () => {
-      const confirmed = window.confirm(`Delete "${activePalette.name}"?`);
-      if (!confirmed) return;
-      const result = deletePalette(state.userPalettes, activePalette.id);
-      persistPalettes(result.palettes, "all");
-      showToast("Palette deleted.");
+  if (clearButton) {
+    clearButton.addEventListener("click", () => {
+      setState({ activeFilter: "all", sharedColors: null });
+      onPalettesChange();
+    });
+  }
+
+  if (copyLinkButton) {
+    copyLinkButton.addEventListener("click", () => {
+      copyText(buildShareUrl(getState()), "Link copied!");
+    });
+  }
+
+  if (saveSharedButton) {
+    saveSharedButton.addEventListener("click", () => {
+      const state = getState();
+      if (!state.sharedColors?.length) return;
+
+      const suggestedName = `Shared palette (${state.sharedColors.length})`;
+      const name = window.prompt("Name this palette", suggestedName);
+      if (name === null) return;
+
+      const result = createPalette(state.userPalettes, name, state.sharedColors);
+      if (!result.ok) {
+        showToast(result.error);
+        return;
+      }
+
+      persistPalettes(result.palettes, `user:${result.palette.id}`);
+      showToast(`Saved "${result.palette.name}".`);
+    });
+  }
+
+  function renderUserPalettes(state) {
+    container.innerHTML = "";
+
+    if (saveSharedButton) {
+      saveSharedButton.hidden = !(state.activeFilter === "shared" && state.sharedColors?.length);
+    }
+
+    if (newPaletteButton) {
+      newPaletteButton.disabled = state.userPalettes.length >= MAX_PALETTES;
+    }
+
+    state.userPalettes.forEach((palette) => {
+      const isActive = state.activeFilter === `user:${palette.id}`;
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "user-palette-row";
+      if (isActive) row.classList.add("is-active");
+      row.setAttribute("aria-pressed", String(isActive));
+
+      const colorTag = createColorTag(palette.colors);
+      const name = document.createElement("span");
+      name.className = "user-palette-name";
+      name.textContent = `${palette.name} (${palette.colors.length})`;
+
+      const actions = document.createElement("span");
+      actions.className = "user-palette-actions";
+      const { trigger, menu } = createKebabMenu(palette, {
+        onRename: () => handleRename(palette),
+        onDelete: () => handleDelete(palette),
+      });
+
+      actions.appendChild(trigger);
+      actions.appendChild(menu);
+
+      row.addEventListener("click", (event) => {
+        if (event.target.closest(".palette-kebab-btn, .palette-kebab-menu")) return;
+        onFilterChange(`user:${palette.id}`);
+      });
+
+      row.appendChild(colorTag);
+      row.appendChild(name);
+      row.appendChild(actions);
+      container.appendChild(row);
     });
   }
 
   return {
     update(state) {
-      renderManager(state);
-    },
-    addColorToActivePalette(hex) {
-      const state = getState();
-      const activeUserId = state.activeFilter.startsWith("user:")
-        ? state.activeFilter.slice(5)
-        : null;
-      if (!activeUserId) return { ok: false, error: "Select one of your palettes first." };
-
-      const result = addColorToPalette(
-        state.userPalettes,
-        activeUserId,
-        hex,
-        validHexSet,
-      );
-      if (!result.ok) return result;
-
-      persistPalettes(result.palettes, state.activeFilter);
-      return { ok: true };
+      renderUserPalettes(state);
     },
     addColorToPalette(paletteId, hex) {
       const state = getState();

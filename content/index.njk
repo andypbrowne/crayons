@@ -12,22 +12,70 @@ js: /assets/js/main.js
     </svg>
     <span>Filters</span>
   </label>
-  <div class="filters-body">
-    <div class="sort-group">
-      <label style="font-weight: bold; margin-inline-end: .6em" for="sort-options">Sort:</label>
-      <select class="sort" id="sort-options">
-        <option value="default" selected>Default (alphabetical)</option>
-        <option value="color">Color (Hex Code)</option>
-        <option value="brightness">Brightness</option>
-        <option value="hue">Hue</option>
-        <option value="saturation">Saturation</option>
-      </select>
+
+  <aside class="filter-panel" id="filter-panel" aria-label="Filters">
+    <div class="filter-panel-top-bar">
+      <span class="filter-panel-drag" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="20" viewBox="0 0 12 20" fill="none" aria-hidden="true">
+          <circle cx="3" cy="4" r="1.5" fill="currentColor"/>
+          <circle cx="9" cy="4" r="1.5" fill="currentColor"/>
+          <circle cx="3" cy="10" r="1.5" fill="currentColor"/>
+          <circle cx="9" cy="10" r="1.5" fill="currentColor"/>
+          <circle cx="3" cy="16" r="1.5" fill="currentColor"/>
+          <circle cx="9" cy="16" r="1.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <label for="filters-panel" class="filter-panel-close" aria-label="Close filters">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </label>
     </div>
 
-    <div id="palette-tools" class="palette-tools"></div>
+    <div class="filter-panel-content">
+      <div class="sort-group">
+        <label class="sort-group-label" for="sort-options">Sort</label>
+        <div class="sort-select-wrap">
+          <select class="sort" id="sort-options">
+            <option value="default" selected>Default (alphabetical)</option>
+            <option value="color">Color (Hex Code)</option>
+            <option value="brightness">Brightness</option>
+            <option value="hue">Hue</option>
+            <option value="saturation">Saturation</option>
+          </select>
+          <svg class="sort-select-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
 
-    <div class="filter-group" id="palette-filter-group" aria-live="polite"></div>
-  </div>
+      <section class="starter-palettes-section" aria-labelledby="starter-palettes-heading">
+        <h2 class="filter-section-title" id="starter-palettes-heading">Starter Palettes</h2>
+        <div class="starter-palettes-zone">
+          <div class="starter-palettes-zone-header">
+            <span class="starter-palettes-zone-title">Starter Palettes</span>
+            <button type="button" id="starter-palettes-toggle" class="starter-palettes-toggle" aria-expanded="true">Show less</button>
+          </div>
+          <div id="palette-filter-group" class="starter-palettes-list" role="radiogroup" aria-label="Starter palettes"></div>
+        </div>
+      </section>
+
+      <hr class="filter-panel-divider">
+
+      <section class="your-palettes-section" aria-labelledby="your-palettes-heading">
+        <h2 class="filter-section-title" id="your-palettes-heading">Your Palettes</h2>
+        <div id="palette-tools" class="your-palettes-list"></div>
+        <button type="button" id="new-palette-btn" class="new-palette-btn">+ New palette</button>
+      </section>
+
+      <div class="filter-panel-footer">
+        <button type="button" id="filter-clear-btn" class="filter-panel-link">Clear all</button>
+        <button type="button" id="filter-copy-link-btn" class="filter-panel-link">Copy link</button>
+      </div>
+
+      <button type="button" id="save-shared-btn" class="save-shared-btn" hidden>Save as palette</button>
+    </div>
+  </aside>
 </div>
 
 {% include "partials/crayon-sprite.njk" -%}
@@ -46,11 +94,11 @@ js: /assets/js/main.js
   </figure>
   <button
     type="button"
-    class="row-actions-btn"
+    class="row-actions-btn kebab-btn"
     popovertarget="actions-{{ hexSlug }}"
     aria-label="More actions for {{ crayon.color }}"
     aria-haspopup="menu"
-  >⋯</button>
+  ><svg xmlns="http://www.w3.org/2000/svg" width="20" height="34" viewBox="0 0 20 34" aria-hidden="true"><circle cx="10" cy="8" r="2" fill="currentColor"/><circle cx="10" cy="17" r="2" fill="currentColor"/><circle cx="10" cy="26" r="2" fill="currentColor"/></svg></button>
   <div
     class="row-actions-menu"
     popover="auto"

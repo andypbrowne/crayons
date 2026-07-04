@@ -73,3 +73,19 @@ export function buildValidHexSet(crayonList) {
   });
   return set;
 }
+
+export function buildHexNameMap(crayonList) {
+  const map = new Map();
+  crayonList.querySelectorAll("li[data-hex]").forEach((item) => {
+    const hex = normalizeHex(item.dataset.hex);
+    const name = item.dataset.colorName?.trim();
+    if (hex && name) map.set(hex, name);
+  });
+  return map;
+}
+
+export function getColorName(hex, nameMap) {
+  const normalized = normalizeHex(hex);
+  if (!normalized) return hex;
+  return nameMap.get(normalized) ?? normalized;
+}

@@ -62,6 +62,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const sortOptions = document.getElementById("sort-options");
   const filterGroup = document.getElementById("palette-filter-group");
   const paletteTools = document.getElementById("palette-tools");
+  const starterToggle = document.getElementById("starter-palettes-toggle");
+  const newPaletteButton = document.getElementById("new-palette-btn");
+  const clearButton = document.getElementById("filter-clear-btn");
+  const copyLinkButton = document.getElementById("filter-copy-link-btn");
+  const saveSharedButton = document.getElementById("save-shared-btn");
 
   if (!crayonList) return;
 
@@ -89,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const filterUi = initFilterUI({
     filterGroup,
+    toggleButton: starterToggle,
     sortOptions,
     onSortChange(sort) {
       setState({ sort });
@@ -107,7 +113,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const paletteManager = initPaletteManager({
     container: paletteTools,
+    newPaletteButton,
+    clearButton,
+    copyLinkButton,
+    saveSharedButton,
     validHexSet,
+    onFilterChange(value) {
+      setState({
+        activeFilter: value,
+        sharedColors: null,
+      });
+    },
     onPalettesChange() {},
   });
 
