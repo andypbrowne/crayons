@@ -718,6 +718,16 @@ ol.crayons li button.row-actions-btn {
 	padding: 1em 0;
 }
 
+@media (max-width: 999px) {
+	.header-description {
+		display: none;
+	}
+
+	.header-description-toggle {
+		display: inline-flex;
+	}
+}
+
 @media (min-width: 1000px) {
 	header {
 		position: fixed;
@@ -783,6 +793,12 @@ ol.crayons li button.row-actions-btn {
 		background-color: var(--filter-panel-bg);
 		color: var(--filter-text);
 	}
+
+	.header-description-popover {
+		background-color: var(--filter-panel-bg);
+		border-color: var(--filter-menu-border);
+		color: var(--filter-text);
+	}
 }
 
 table {
@@ -827,6 +843,61 @@ header {
 	padding: 1em;
 	justify-content: space-between;
 }
+
+.header-brand {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	flex-wrap: wrap;
+	min-width: 0;
+}
+
+.header-description {
+	margin: 0;
+	font-style: italic;
+	font-size: 0.875em;
+	color: var(--color-gray-90);
+}
+
+.header-description-toggle {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 2rem;
+	height: 2rem;
+	padding: 0;
+	border: 1px solid var(--color-gray-50);
+	border-radius: 999px;
+	background: var(--background-color);
+	color: inherit;
+	cursor: pointer;
+}
+
+.header-description-toggle:hover {
+	background-color: var(--color-gray-20);
+}
+
+.header-description-popover {
+	margin: 0;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--color-gray-50);
+	border-radius: 8px;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	box-shadow: 0 8px 24px rgb(0 0 0 / 15%);
+	max-width: min(20rem, calc(100vw - 2rem));
+	inset: auto;
+	position-area: bottom;
+}
+
+.header-description-popover-text {
+	margin: 0;
+	font-style: italic;
+	font-size: 0.875em;
+	line-height: 1.4;
+}
+
 .home-link {
 	font-size: 1em; /* 16px /16 */
 	font-weight: 700;
