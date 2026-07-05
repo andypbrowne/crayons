@@ -96,15 +96,14 @@ export function initRowMenus({ crayonList, paletteManager }) {
           submenu.appendChild(button);
         });
 
-        if (state.userPalettes.length < MAX_PALETTES) {
-          const createButton = document.createElement("button");
-          createButton.type = "button";
-          createButton.className = "row-actions-submenu-item";
-          createButton.dataset.action = "add-to-palette";
-          createButton.dataset.paletteId = "__new__";
-          createButton.textContent = "New palette…";
-          submenu.appendChild(createButton);
-        }
+        const createButton = document.createElement("button");
+        createButton.type = "button";
+        createButton.className = "row-actions-submenu-item";
+        createButton.dataset.action = "add-to-palette";
+        createButton.dataset.paletteId = "__new__";
+        createButton.textContent = "Add to new palette";
+        createButton.disabled = state.userPalettes.length >= MAX_PALETTES;
+        submenu.appendChild(createButton);
       });
     },
   };

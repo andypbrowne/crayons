@@ -116,7 +116,7 @@ ol.crayons li[hidden] {
 	display: none !important;
 }
 
-ol.crayons li button {
+ol.crayons li > button {
 	padding: .5em 1.2em;
 	/* max-width: 90px; */
 	height: 2.2rem;
@@ -473,11 +473,11 @@ header {
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	width: 1.25rem;
-	height: 2.125rem;
+	width: 1.5rem;
+	height: 1.5rem;
 	padding: 0;
 	border: 0;
-	border-radius: 6px;
+	border-radius: 4px;
 	background: var(--filter-panel-bg, #fff);
 	color: var(--filter-muted, #666);
 	cursor: pointer;
@@ -495,6 +495,8 @@ ol.crayons .row-actions-btn.kebab-btn {
 
 .kebab-btn svg {
 	display: block;
+	width: 4px;
+	height: 18px;
 }
 
 .palette-kebab-btn:hover,
@@ -659,13 +661,13 @@ button.copy-btn {
 
 ol.crayons li button.row-actions-btn {
 	padding: 0;
-	height: 2.125rem;
+	height: 1.5rem;
 	min-width: auto;
 }
 
 .row-actions-menu {
 	margin: 0;
-	padding: 0.5rem 0.75rem;
+	padding: 0.375rem 0;
 	border: 1px solid var(--color-gray-50);
 	border-radius: 8px;
 	background-color: var(--background-color);
@@ -680,7 +682,7 @@ ol.crayons li button.row-actions-btn {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	padding-bottom: 0.5rem;
+	padding: 0.125rem 0.75rem 0.5rem;
 	margin-bottom: 0.25rem;
 	border-bottom: 1px solid var(--color-gray-20);
 }
@@ -712,16 +714,39 @@ ol.crayons li button.row-actions-btn {
 	color: var(--color-gray-50);
 }
 
-.row-actions-item,
-.row-actions-submenu-item {
-	display: block;
+.row-actions-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 	width: 100%;
-	padding: 0.375rem 0;
+	padding: 0.375rem 0.75rem;
 	border: 0;
-	border-radius: 4px;
+	border-radius: 0;
 	background: transparent;
 	color: inherit;
 	font: inherit;
+	font-size: 0.8125rem;
+	text-align: left;
+	cursor: pointer;
+}
+
+.row-actions-icon {
+	flex-shrink: 0;
+	width: 0.875rem;
+	height: 0.875rem;
+	color: var(--color-gray-50);
+}
+
+.row-actions-submenu-item {
+	display: block;
+	width: 100%;
+	padding: 0.375rem 0.75rem;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 0.8125rem;
 	text-align: left;
 	cursor: pointer;
 }
@@ -737,12 +762,13 @@ ol.crayons li button.row-actions-btn {
 }
 
 .row-actions-submenu-label {
-	padding: 0.5rem 0 0.15rem;
+	padding: 0.5rem 0.75rem 0.15rem;
 	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 	color: var(--color-gray-50);
+	text-align: left;
 }
 
 .crayon-list-empty {

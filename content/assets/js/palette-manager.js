@@ -31,7 +31,7 @@ function createKebabMenu(palette, { onRename, onDelete }) {
   trigger.setAttribute("popovertarget", menuId);
   trigger.setAttribute("aria-label", `Actions for ${palette.name}`);
   trigger.addEventListener("click", (event) => event.stopPropagation());
-  trigger.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="34" viewBox="0 0 20 34" aria-hidden="true"><circle cx="10" cy="8" r="2" fill="currentColor"/><circle cx="10" cy="17" r="2" fill="currentColor"/><circle cx="10" cy="26" r="2" fill="currentColor"/></svg>`;
+  trigger.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="4" height="18" viewBox="0 0 4 18" aria-hidden="true"><circle cx="2" cy="2" r="2" fill="currentColor"/><circle cx="2" cy="9" r="2" fill="currentColor"/><circle cx="2" cy="16" r="2" fill="currentColor"/></svg>`;
 
   const menu = document.createElement("div");
   menu.className = "palette-kebab-menu";
