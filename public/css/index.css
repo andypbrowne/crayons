@@ -3,6 +3,8 @@
 	--font-family: -apple-system, system-ui, sans-serif;
 	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
 	--header-height: 4rem;
+	--layout-gutter: 1rem;
+	--content-offset-top: calc(var(--header-height) + var(--layout-gutter));
 }
 
 /* Theme colors */
@@ -62,15 +64,21 @@ ol.crayons {
 	list-style: none;
 	padding: 0;
 	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--crayon-row-gap, 0.375rem);
+	--crayon-height: 2.25rem;
+	--crayon-row-gap: 0.375rem;
 }
 
 ol.crayons li {
-	display:flex;
+	display: flex;
 	align-items: center;
-	gap: 1.2rem;
 	justify-content: center;
+	gap: 0.375rem;
+	width: 100%;
 	content-visibility: auto;
-	contain-intrinsic-size: auto 4rem;
+	contain-intrinsic-size: auto 2.625rem;
 	--crayon-wrapper: oklch(from var(--crayon-color) clamp(
 		0.76,
 		calc(l + clamp(-0.05, (0.62 - l) * 0.35, max(0, (0.52 - l) * 1.35))),
@@ -82,6 +90,10 @@ ol.crayons li {
 ol.crayons li figure {
 	margin: 0;
 	position: relative;
+	flex: none;
+	width: fit-content;
+	max-width: calc(100% - var(--crayon-height) - 0.5rem);
+	line-height: 0;
 }
 
 .crayon-sprite {
@@ -92,16 +104,20 @@ ol.crayons li figure {
 }
 
 ol.crayons li figure svg.crayon-svg {
-	width: 100%;
+	display: block;
+	height: var(--crayon-height);
+	width: auto;
+	aspect-ratio: 1172 / 121;
+	max-width: 100%;
 }
 
 .crayon-label {
 	position: absolute;
-	right: 22%;
-	top: 34%;
+	right: 19%;
+	top: 31%;
 	transform: translateY(-50%);
 	color: #000;
-	font-size: clamp(0.65rem, 2.8vw, 1rem);
+	font-size: clamp(0.5rem, 1.8vw, 0.6875rem);
 	font-weight: 600;
 	line-height: 1;
 	pointer-events: none;
@@ -109,7 +125,7 @@ ol.crayons li figure svg.crayon-svg {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 55%;
+	max-width: 42%;
 }
 
 ol.crayons li[hidden] {
@@ -821,8 +837,11 @@ button.copy-btn {
 
 ol.crayons li button.row-actions-btn {
 	padding: 0;
-	height: 1.5rem;
-	min-width: auto;
+	height: var(--crayon-height);
+	width: var(--crayon-height);
+	min-width: var(--crayon-height);
+	flex-shrink: 0;
+	align-self: center;
 }
 
 .row-actions-menu {
@@ -1167,12 +1186,14 @@ ol.crayons li button.row-actions-btn {
     	-webkit-backdrop-filter: blur(10px); /* Safari support */
 	}
 	main {
+		padding-top: var(--content-offset-top);
 	}
+
 	.panels-dock-column {
 		position: fixed;
-		top: var(--header-height);
-		left: 1rem;
-		width: min(410px, calc(100vw - 2rem));
+		top: var(--content-offset-top);
+		left: var(--layout-gutter);
+		width: min(410px, calc(100vw - 2 * var(--layout-gutter)));
 		margin: 0;
 	}
 
@@ -1202,13 +1223,15 @@ ol.crayons li button.row-actions-btn {
 	}
 
 	ol.crayons {
-		margin-block-start: 4rem;
+		margin-block-start: 0;
 		margin-inline-start: var(--panel-dock-width, 0);
 		transition: margin-inline-start 0.2s ease;
+		--crayon-height: 2.5rem;
+		--crayon-row-gap: 0.5rem;
 	}
 
 	.crayon-label {
-		font-size: 0.7rem;
+		font-size: 0.6875rem;
 	}
 }
 
