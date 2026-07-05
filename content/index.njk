@@ -6,7 +6,7 @@ js: /assets/js/main.js
 shareMeta: true
 ---
 {% macro copyIcon() -%}
-<svg class="row-actions-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="4.5" y="4.5" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.25"/><path d="M3.5 9.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>
+{% include "partials/copy-icon.njk" %}
 {%- endmacro %}
 
 {% macro panelChrome(title) -%}
@@ -56,6 +56,7 @@ shareMeta: true
 </div>
 {%- endmacro %}
 
+<div class="panels-sidebar">
 <div class="panels-dock-column" id="panels-dock-column">
   <div class="panel-host" id="filters-host" data-panel-id="filters">
     {{ panelToggleBar("filters-panel-toggle", "Explore") }}
@@ -82,11 +83,6 @@ shareMeta: true
           <h2 class="filter-section-title" id="color-family-heading">Color family</h2>
           <div id="color-family-filters" class="color-family-filters" role="group" aria-label="Color family"></div>
         </section>
-
-        <div class="filter-panel-footer">
-          <button type="button" id="filter-clear-btn" class="filter-panel-link">Clear filters</button>
-          <button type="button" id="filter-copy-link-btn" class="filter-panel-link">Copy link</button>
-        </div>
 
         <button type="button" id="save-shared-btn" class="save-shared-btn" hidden>Save as palette</button>
       </div>
@@ -119,6 +115,7 @@ shareMeta: true
       </div>
     </aside>
   </div>
+</div>
 </div>
 
 {% include "partials/crayon-sprite.njk" -%}
