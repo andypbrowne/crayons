@@ -75,6 +75,7 @@ export function initFilterUI({
       const label = document.createElement("label");
       label.className = "starter-palette-option";
       if (hidden) {
+        label.hidden = true;
         label.classList.add("is-collapsed-hidden");
       }
 
