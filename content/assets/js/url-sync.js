@@ -1,6 +1,9 @@
-import { hexForUrl, normalizeHex, parseColorsParam } from "./color-utils.js";
-import { isPresetId } from "./presets.js";
-import { getUserPaletteById } from "./app-state.js";
+import {
+  formatColorsForUrl,
+  parseColorsParam,
+} from "./color-utils.js";
+import { getPresetById, presetParamValue, resolvePresetParam } from "./presets.js";
+import { getActiveColors, getUserPaletteById } from "./app-state.js";
 
 const SORT_VALUES = new Set([
   "default",
@@ -10,13 +13,26 @@ const SORT_VALUES = new Set([
   "saturation",
 ]);
 
-export function readUrlState(validHexSet) {
+function getShareableColors(state) {
+  if (state.sharedColors?.length) {
+    return state.sharedColors;
+  }
+
+  if (state.activeFilter?.startsWith("user:")) {
+    const palette = getUserPaletteById(state.activeFilter.slice(5));
+    return palette?.colors?.length ? palette.colors : null;
+  }
+
+  return null;
+}
+
+export function readUrlState(validHexSet, nameHexMap) {
   const params = new URLSearchParams(window.location.search);
   const sort = SORT_VALUES.has(params.get("sort")) ? params.get("sort") : "default";
 
   const colorsParam = params.get("colors");
   if (colorsParam) {
-    const sharedColors = parseColorsParam(colorsParam, validHexSet);
+    const sharedColors = parseColorsParam(colorsParam, validHexSet, nameHexMap);
     if (sharedColors.length) {
       return {
         sort,
@@ -26,9 +42,18 @@ export function readUrlState(validHexSet) {
     }
   }
 
-  const paletteParam = params.get("palette") ?? "all";
-  if (paletteParam === "all") {
+  const paletteParam = params.get("palette");
+  if (!paletteParam || paletteParam === "all") {
     return { sort, activeFilter: "all", sharedColors: null };
+  }
+
+  const preset = resolvePresetParam(paletteParam);
+  if (preset) {
+    return {
+      sort,
+      activeFilter: preset.id,
+      sharedColors: null,
+    };
   }
 
   if (paletteParam.startsWith("user:")) {
@@ -39,35 +64,25 @@ export function readUrlState(validHexSet) {
     };
   }
 
-  if (isPresetId(paletteParam)) {
-    return {
-      sort,
-      activeFilter: paletteParam,
-      sharedColors: null,
-    };
-  }
-
   return { sort, activeFilter: "all", sharedColors: null };
 }
 
-export function writeUrlState(state) {
-  const params = new URLSearchParams(window.location.search);
+export function writeUrlState(state, colorNameMap) {
+  const params = new URLSearchParams();
 
   if (state.sort && state.sort !== "default") {
     params.set("sort", state.sort);
-  } else {
-    params.delete("sort");
   }
 
-  if (state.sharedColors?.length) {
-    params.set("colors", state.sharedColors.map(hexForUrl).join(","));
-    params.delete("palette");
+  const shareableColors = getShareableColors(state);
+
+  if (shareableColors?.length) {
+    params.set("colors", formatColorsForUrl(shareableColors, colorNameMap));
   } else if (state.activeFilter && state.activeFilter !== "all" && state.activeFilter !== "shared") {
-    params.set("palette", state.activeFilter);
-    params.delete("colors");
-  } else {
-    params.delete("palette");
-    params.delete("colors");
+    const preset = getPresetById(state.activeFilter);
+    if (preset) {
+      params.set("palette", presetParamValue(preset));
+    }
   }
 
   const query = params.toString();
@@ -78,32 +93,21 @@ export function writeUrlState(state) {
   window.history.replaceState({}, "", nextUrl);
 }
 
-export function buildShareUrl(state) {
+export function buildShareUrl(state, colorNameMap) {
   const params = new URLSearchParams();
+  const shareableColors = getShareableColors(state);
 
-  if (state.sort && state.sort !== "default") {
-    params.set("sort", state.sort);
-  }
-
-  if (state.sharedColors?.length) {
-    params.set("colors", state.sharedColors.map(hexForUrl).join(","));
-  } else if (state.activeFilter?.startsWith("user:")) {
-    const palette = getUserPaletteById(state.activeFilter.slice(5));
-    if (palette?.colors?.length) {
-      params.set("colors", palette.colors.map(hexForUrl).join(","));
-    } else {
-      params.set("palette", state.activeFilter);
-    }
+  if (shareableColors?.length) {
+    params.set("colors", formatColorsForUrl(shareableColors, colorNameMap));
   } else if (state.activeFilter && state.activeFilter !== "all" && state.activeFilter !== "shared") {
-    params.set("palette", state.activeFilter);
+    const preset = getPresetById(state.activeFilter);
+    if (preset) {
+      params.set("palette", presetParamValue(preset));
+    }
   }
 
   const query = params.toString();
   return query
     ? `${window.location.origin}${window.location.pathname}?${query}`
     : `${window.location.origin}${window.location.pathname}`;
-}
-
-export function colorsFromSharedSelection(colors) {
-  return colors.map(normalizeHex).filter(Boolean);
 }

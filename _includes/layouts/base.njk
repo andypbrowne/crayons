@@ -20,44 +20,68 @@
 
 		{% if shareMeta %}
 		<script id="presets-bootstrap" type="application/json">{{ presetPalettes | toJson | safe }}</script>
+		<script id="color-slugs-bootstrap" type="application/json">{{ colorSlugMap | toJson | safe }}</script>
 		<script>
 		(function () {
 			var presets = JSON.parse(document.getElementById("presets-bootstrap").textContent);
+			var colorSlugs = JSON.parse(document.getElementById("color-slugs-bootstrap").textContent);
 			var params = new URLSearchParams(window.location.search);
 			var colorsParam = params.get("colors");
 			var paletteParam = params.get("palette");
 			var context = { label: "Curated color palettes", colors: presets[0].colors.slice(0, 5), view: "all" };
 
+			function slugify(value) {
+				return String(value).trim().toLowerCase()
+					.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+					.replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+			}
+
+			function findPreset(param) {
+				if (!param || param === "all") return null;
+				return presets.find(function (entry) {
+					return entry.slug === param || entry.id === param || slugify(entry.label) === slugify(param);
+				}) || null;
+			}
+
 			if (colorsParam) {
 				var colors = colorsParam.split(",").map(function (part) {
 					var raw = part.trim().replace(/^#/, "").toUpperCase();
-					return /^[0-9A-F]{6}$/.test(raw) ? "#" + raw : null;
+					if (/^[0-9A-F]{6}$/.test(raw)) return "#" + raw;
+					return colorSlugs[slugify(part)] || null;
 				}).filter(Boolean).slice(0, 5);
 				if (colors.length) {
-					context = { label: params.get("label") || "Custom palette", colors: colors, view: "custom" };
+					context = { label: "Custom palette", colors: colors, view: "custom" };
 				}
-			} else if (paletteParam && paletteParam !== "all" && paletteParam.indexOf("user:") !== 0) {
-				var preset = presets.find(function (entry) { return entry.id === paletteParam; });
+			} else {
+				var preset = findPreset(paletteParam);
 				if (preset) {
-					context = { label: preset.emoji + " " + preset.label, colors: preset.colors.slice(0, 5), view: "preset", paletteId: preset.id };
+					context = {
+						label: preset.emoji + " " + preset.label,
+						colors: preset.colors.slice(0, 5),
+						view: "preset",
+						paletteId: preset.id,
+						paletteSlug: preset.slug
+					};
 				}
-			} else if (paletteParam && paletteParam.indexOf("user:") === 0) {
-				context = { label: params.get("label") || "My palette", colors: [], view: "user" };
 			}
 
 			var description = context.view === "all"
 				? "Browse all Crayola colors with curated starter palettes for creative projects."
 				: context.view === "preset"
 					? context.label + " — a curated palette of " + context.colors.length + " Crayola colors."
-					: context.label + (context.colors.length ? " — a custom palette of " + context.colors.length + " Crayola colors." : " — a custom Crayola palette.");
+					: context.label + " — a custom palette of " + context.colors.length + " Crayola colors.";
 
 			var imageParams = new URLSearchParams();
-			if (context.paletteId) {
-				imageParams.set("palette", context.paletteId);
+			if (context.paletteSlug) {
+				imageParams.set("palette", context.paletteSlug);
 			} else if (context.colors.length) {
-				imageParams.set("colors", context.colors.map(function (hex) { return hex.slice(1); }).join(","));
+				imageParams.set("colors", context.colors.map(function (hex) {
+					for (var slug in colorSlugs) {
+						if (colorSlugs[slug].toUpperCase() === hex.toUpperCase()) return slug;
+					}
+					return hex.slice(1);
+				}).join(","));
 			}
-			if (context.label) imageParams.set("label", context.label);
 
 			var origin = window.location.origin;
 			var imageUrl = imageParams.toString() ? origin + "/og?" + imageParams.toString() : origin + "/og";

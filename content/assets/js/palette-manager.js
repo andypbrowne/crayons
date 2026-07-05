@@ -62,6 +62,7 @@ export function initPaletteManager({
   copyLinkButton,
   saveSharedButton,
   validHexSet,
+  colorNameMap,
   onFilterChange,
   onPalettesChange,
 }) {
@@ -156,7 +157,7 @@ export function initPaletteManager({
 
   if (copyLinkButton) {
     copyLinkButton.addEventListener("click", () => {
-      copyText(buildShareUrl(getState()), "Link copied!");
+      copyText(buildShareUrl(getState(), colorNameMap), "Link copied!");
     });
   }
 

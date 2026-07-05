@@ -1,5 +1,5 @@
-import { hexForUrl } from "./color-utils.js";
-import { getPresetById } from "./presets.js";
+import { formatColorsForUrl } from "./color-utils.js";
+import { getPresetById, presetParamValue } from "./presets.js";
 import { getActiveColors, getState } from "./app-state.js";
 
 export function resolveShareContextFromState(state, colorNameMap = new Map()) {
@@ -92,24 +92,21 @@ export function buildShareDescription(context) {
   return "Curated Crayola color palettes for creative projects.";
 }
 
-export function buildOgImageQuery(context) {
+export function buildOgImageQuery(context, colorNameMap = new Map()) {
   const params = new URLSearchParams();
 
   if (context.paletteId && context.view === "preset") {
-    params.set("palette", context.paletteId);
+    const preset = getPresetById(context.paletteId);
+    params.set("palette", preset ? presetParamValue(preset) : context.paletteId);
   } else if (context.colors.length) {
-    params.set("colors", context.colors.map(hexForUrl).join(","));
-  }
-
-  if (context.label) {
-    params.set("label", context.label);
+    params.set("colors", formatColorsForUrl(context.colors, colorNameMap));
   }
 
   return params.toString();
 }
 
-export function buildOgImageUrl(context, origin = window.location.origin) {
-  const query = buildOgImageQuery(context);
+export function buildOgImageUrl(context, origin = window.location.origin, colorNameMap = new Map()) {
+  const query = buildOgImageQuery(context, colorNameMap);
   return query ? `${origin}/og?${query}` : `${origin}/og`;
 }
 
@@ -129,10 +126,10 @@ function setMetaTag(selector, content) {
   tag.setAttribute("content", content);
 }
 
-export function updateShareMeta(context, pageUrl = window.location.href) {
+export function updateShareMeta(context, pageUrl = window.location.href, colorNameMap = new Map()) {
   const origin = window.location.origin;
   const description = buildShareDescription(context);
-  const imageUrl = buildOgImageUrl(context, origin);
+  const imageUrl = buildOgImageUrl(context, origin, colorNameMap);
 
   document.title = "Crayons";
 
@@ -148,7 +145,7 @@ export function updateShareMeta(context, pageUrl = window.location.href) {
   setMetaTag('meta[name="twitter:image:alt"]', description);
 }
 
-export function resolveShareContextFromUrl(searchParams, presets) {
+export function resolveShareContextFromUrl(searchParams, presets, nameHexMap = new Map()) {
   const colorsParam = searchParams.get("colors");
   const paletteParam = searchParams.get("palette");
 
@@ -156,15 +153,18 @@ export function resolveShareContextFromUrl(searchParams, presets) {
     const colors = colorsParam
       .split(",")
       .map((part) => {
-        const raw = part.trim().replace(/^#/, "").toUpperCase();
-        return /^[0-9A-F]{6}$/.test(raw) ? `#${raw}` : null;
+        const hexValue = part.trim().replace(/^#/, "").toUpperCase();
+        if (/^[0-9A-F]{6}$/.test(hexValue)) return `#${hexValue}`;
+        return nameHexMap.get(
+          part.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+        ) ?? null;
       })
       .filter(Boolean)
       .slice(0, 5);
 
     if (colors.length) {
       return {
-        label: searchParams.get("label")?.trim() || "Custom palette",
+        label: "Custom palette",
         colors,
         paletteId: null,
         view: "custom",
@@ -173,25 +173,19 @@ export function resolveShareContextFromUrl(searchParams, presets) {
     }
   }
 
-  if (paletteParam && paletteParam !== "all" && !paletteParam.startsWith("user:")) {
-    const preset = presets.find((entry) => entry.id === paletteParam);
-    if (preset) {
-      return {
-        label: `${preset.emoji} ${preset.label}`,
-        colors: preset.colors.slice(0, 5),
-        paletteId: preset.id,
-        view: "preset",
-        colorNames: [],
-      };
-    }
-  }
+  const preset =
+    presets.find(
+      (entry) =>
+        entry.slug === paletteParam ||
+        entry.id === paletteParam,
+    ) ?? null;
 
-  if (paletteParam?.startsWith("user:")) {
+  if (preset) {
     return {
-      label: searchParams.get("label")?.trim() || "My palette",
-      colors: [],
-      paletteId: paletteParam,
-      view: "user",
+      label: `${preset.emoji} ${preset.label}`,
+      colors: preset.colors.slice(0, 5),
+      paletteId: preset.id,
+      view: "preset",
       colorNames: [],
     };
   }
@@ -208,5 +202,5 @@ export function resolveShareContextFromUrl(searchParams, presets) {
 
 export function updateShareMetaFromState(state, colorNameMap) {
   const context = resolveShareContextFromState(state, colorNameMap);
-  updateShareMeta(context);
+  updateShareMeta(context, window.location.href, colorNameMap);
 }

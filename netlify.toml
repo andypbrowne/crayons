@@ -7,10 +7,6 @@
 	to = "/.netlify/functions/og"
 	status = 200
 
-[[edge_functions]]
-	function = "inject-share-meta"
-	path = "/"
-
 [[plugins]]
 
 	# Opt-in to the Netlify Lighthouse plugin (choose one):

@@ -5,19 +5,50 @@ export function normalizeHex(value) {
   return `#${raw}`;
 }
 
+export function slugifyLabel(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export function hexForUrl(hex) {
   return normalizeHex(hex)?.slice(1) ?? "";
 }
 
-export function parseColorsParam(param, validHexSet) {
+export function parseColorsParam(param, validHexSet, nameHexMap = null) {
   if (!param) return [];
+
   const colors = param
     .split(",")
-    .map((part) => normalizeHex(part))
+    .map((part) => {
+      const hexValue = normalizeHex(part);
+      if (hexValue) return hexValue;
+
+      const slug = slugifyLabel(part);
+      return nameHexMap?.get(slug) ?? null;
+    })
     .filter(Boolean);
 
-  if (!validHexSet) return colors;
-  return colors.filter((hex) => validHexSet.has(hex));
+  const unique = [...new Set(colors.map((hex) => normalizeHex(hex)).filter(Boolean))];
+
+  if (!validHexSet) return unique;
+  return unique.filter((hex) => validHexSet.has(hex));
+}
+
+export function formatColorsForUrl(colors, colorNameMap) {
+  return colors
+    .map((hex) => {
+      const normalized = normalizeHex(hex);
+      const name = colorNameMap.get(normalized);
+      return name ? slugifyLabel(name) : hexForUrl(normalized);
+    })
+    .filter(Boolean)
+    .join(",");
 }
 
 export function brightness(hex) {
@@ -72,6 +103,18 @@ export function buildValidHexSet(crayonList) {
     if (hex) set.add(hex);
   });
   return set;
+}
+
+export function buildNameHexMap(crayonList) {
+  const map = new Map();
+  crayonList.querySelectorAll("li[data-hex]").forEach((item) => {
+    const hex = normalizeHex(item.dataset.hex);
+    const name = item.dataset.colorName?.trim();
+    if (hex && name) {
+      map.set(slugifyLabel(name), hex);
+    }
+  });
+  return map;
 }
 
 export function buildHexNameMap(crayonList) {

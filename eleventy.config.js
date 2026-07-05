@@ -22,6 +22,25 @@ module.exports = function(eleventyConfig) {
 		return JSON.parse(fs.readFileSync(presetPath, "utf8"));
 	});
 
+	eleventyConfig.addGlobalData("colorSlugMap", () => {
+		const crayolaPath = path.join(__dirname, "_data/crayola.json");
+		const crayola = JSON.parse(fs.readFileSync(crayolaPath, "utf8"));
+		const slugify = (value) =>
+			String(value)
+				.trim()
+				.toLowerCase()
+				.normalize("NFD")
+				.replace(/[\u0300-\u036f]/g, "")
+				.replace(/['’]/g, "")
+				.replace(/[^a-z0-9]+/g, "-")
+				.replace(/^-+|-+$/g, "");
+		const map = {};
+		for (const entry of crayola) {
+			map[slugify(entry.color)] = entry.hex;
+		}
+		return map;
+	});
+
 	eleventyConfig.addFilter("toJson", (value) => JSON.stringify(value));
 
 	// Copy the contents of the `public` folder to the output folder

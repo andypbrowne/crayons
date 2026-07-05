@@ -4,7 +4,7 @@ import {
   subscribe,
   getActiveColors,
 } from "./app-state.js";
-import { buildValidHexSet, buildHexNameMap } from "./color-utils.js";
+import { buildValidHexSet, buildHexNameMap, buildNameHexMap } from "./color-utils.js";
 import { applyFilter } from "./filter.js";
 import { initFilterUI } from "./filter-ui.js";
 import { initPaletteManager } from "./palette-manager.js";
@@ -15,6 +15,7 @@ import { readUrlState, writeUrlState } from "./url-sync.js";
 import { isPresetId } from "./presets.js";
 import { showToast } from "./toast.js";
 import { updateShareMetaFromState } from "./share-meta.js";
+import { initPanelChrome } from "./panel-chrome.js";
 
 function resolveInitialFilter(urlState, userPalettes) {
   if (urlState.sharedColors?.length) {
@@ -71,10 +72,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!crayonList) return;
 
+  initPanelChrome(document.getElementById("filter-panel"), {
+    id: "filters",
+    title: "Filters",
+  });
+
   const validHexSet = buildValidHexSet(crayonList);
   const colorNameMap = buildHexNameMap(crayonList);
+  const nameHexMap = buildNameHexMap(crayonList);
   const userPalettes = loadUserPalettes();
-  const urlState = readUrlState(validHexSet);
+  const urlState = readUrlState(validHexSet, nameHexMap);
   const initialState = resolveInitialFilter(urlState, userPalettes);
 
   if (
@@ -91,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function syncPage(state) {
     applySort(state.sort);
     applyFilter(crayonList, getActiveColors(state));
-    writeUrlState(state);
+    writeUrlState(state, colorNameMap);
     updateShareMetaFromState(state, colorNameMap);
   }
 
@@ -121,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     copyLinkButton,
     saveSharedButton,
     validHexSet,
+    colorNameMap,
     onFilterChange(value) {
       setState({
         activeFilter: value,
