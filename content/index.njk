@@ -114,6 +114,13 @@ shareMeta: true
     data-hex="{{ crayon.hex }}"
     data-color-name="{{ crayon.color }}"
   >
+    <div class="row-actions-header" role="presentation" aria-hidden="true">
+      <span class="row-actions-swatch" style="background-color: {{ crayon.hex }}"></span>
+      <div class="row-actions-header-meta">
+        <span class="row-actions-color-name">{{ crayon.color }}</span>
+        <span class="row-actions-hex">{{ crayon.hex }}</span>
+      </div>
+    </div>
     <button type="button" class="row-actions-item" data-action="copy-hex" role="menuitem">Copy hex code</button>
     <button type="button" class="row-actions-item" data-action="copy-name" role="menuitem">Copy color name</button>
     <div class="row-actions-submenu-label">Add to palette</div>
