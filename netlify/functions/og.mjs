@@ -1,4 +1,4 @@
-import { resolveShareContext } from "./share-meta-lib.mjs";
+import { resolveShareContext, MAX_COLORS_PER_PALETTE } from "./share-meta-lib.mjs";
 
 const CRAYON_WRAPPER = "#E4E4E4";
 const CRAYON_INK = "#333333";
@@ -32,11 +32,17 @@ function renderCrayon(color, x, y, scale) {
 }
 
 function buildOgSvg(context) {
-  const colors = context.colors.slice(0, 5);
+  const colors = context.colors.slice(0, MAX_COLORS_PER_PALETTE);
   const crayonCount = Math.max(colors.length, 1);
-  const scale = 0.19;
-  const crayonWidth = 1172 * scale;
-  const gap = 24;
+  const gap = 16;
+  const maxRowWidth = 1080;
+  const crayonBaseWidth = 1172;
+  let scale = 0.19;
+  const rowWidth = crayonCount * crayonBaseWidth * scale + (crayonCount - 1) * gap;
+  if (rowWidth > maxRowWidth) {
+    scale = (maxRowWidth - (crayonCount - 1) * gap) / (crayonCount * crayonBaseWidth);
+  }
+  const crayonWidth = crayonBaseWidth * scale;
   const totalWidth = crayonCount * crayonWidth + (crayonCount - 1) * gap;
   const startX = (1200 - totalWidth) / 2;
   const crayonY = 300;

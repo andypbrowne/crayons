@@ -3,7 +3,7 @@ import { normalizeHex } from "./color-utils.js";
 export const STORAGE_KEY = "crayons:user-palettes";
 export const SCHEMA_VERSION = 1;
 export const MAX_PALETTES = 10;
-export const MAX_COLORS_PER_PALETTE = 5;
+export const MAX_COLORS_PER_PALETTE = 8;
 
 export function loadUserPalettes() {
   try {
@@ -121,7 +121,7 @@ export function addColorToPalette(palettes, id, hex, validHexSet) {
     return { ok: false, error: "Color is already in this palette." };
   }
   if (palette.colors.length >= MAX_COLORS_PER_PALETTE) {
-    return { ok: false, error: "Palettes can have up to 5 colors." };
+    return { ok: false, error: `Palettes can have up to ${MAX_COLORS_PER_PALETTE} colors.` };
   }
 
   const next = palettes.map((entry) =>

@@ -1,6 +1,8 @@
 import PRESETS from "../../content/assets/js/presets.json" with { type: "json" };
 import CRAYOLA from "../../_data/crayola.json" with { type: "json" };
 
+export const MAX_COLORS_PER_PALETTE = 8;
+
 const DEFAULT_COLORS = PRESETS[0].colors;
 
 const NAME_HEX_MAP = buildNameHexMap();
@@ -85,7 +87,7 @@ export function resolveShareContext(searchParams) {
   const paletteParam = searchParams.get("palette");
 
   if (colorsParam) {
-    const colors = parseColorsParam(colorsParam).slice(0, 5);
+    const colors = parseColorsParam(colorsParam).slice(0, MAX_COLORS_PER_PALETTE);
     if (colors.length) {
       return {
         label: "Custom palette",
@@ -100,7 +102,7 @@ export function resolveShareContext(searchParams) {
   if (preset) {
     return {
       label: `${preset.emoji} ${preset.label}`,
-      colors: preset.colors.slice(0, 5),
+      colors: preset.colors.slice(0, MAX_COLORS_PER_PALETTE),
       paletteId: preset.id,
       view: "preset",
     };
@@ -108,7 +110,7 @@ export function resolveShareContext(searchParams) {
 
   return {
     label: "Curated color palettes",
-    colors: DEFAULT_COLORS.slice(0, 5),
+    colors: DEFAULT_COLORS.slice(0, MAX_COLORS_PER_PALETTE),
     paletteId: null,
     view: "all",
   };
@@ -133,7 +135,7 @@ export function buildShareDescription(context, colorNames = []) {
   }
 
   if (colorNames.length) {
-    const names = colorNames.slice(0, 5).join(", ");
+    const names = colorNames.slice(0, MAX_COLORS_PER_PALETTE).join(", ");
     return `${context.label} — ${names}.`;
   }
 

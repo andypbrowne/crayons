@@ -28,7 +28,7 @@
 			var params = new URLSearchParams(window.location.search);
 			var colorsParam = params.get("colors");
 			var paletteParam = params.get("palette");
-			var context = { label: "Curated color palettes", colors: presets[0].colors.slice(0, 5), view: "all" };
+			var context = { label: "Curated color palettes", colors: presets[0].colors.slice(0, 8), view: "all" };
 
 			function slugify(value) {
 				return String(value).trim().toLowerCase()
@@ -48,7 +48,7 @@
 					var raw = part.trim().replace(/^#/, "").toUpperCase();
 					if (/^[0-9A-F]{6}$/.test(raw)) return "#" + raw;
 					return colorSlugs[slugify(part)] || null;
-				}).filter(Boolean).slice(0, 5);
+				}).filter(Boolean).slice(0, 8);
 				if (colors.length) {
 					context = { label: "Custom palette", colors: colors, view: "custom" };
 				}
@@ -57,7 +57,7 @@
 				if (preset) {
 					context = {
 						label: preset.emoji + " " + preset.label,
-						colors: preset.colors.slice(0, 5),
+						colors: preset.colors.slice(0, 8),
 						view: "preset",
 						paletteId: preset.id,
 						paletteSlug: preset.slug

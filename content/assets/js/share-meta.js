@@ -1,13 +1,14 @@
 import { formatColorsForUrl } from "./color-utils.js";
 import { getPresetById, presetParamValue } from "./presets.js";
 import { getActiveColors, getState } from "./app-state.js";
+import { MAX_COLORS_PER_PALETTE } from "./user-palettes.js";
 
 export function resolveShareContextFromState(state, colorNameMap = new Map()) {
-  const colors = (getActiveColors(state) ?? []).slice(0, 5);
+  const colors = (getActiveColors(state) ?? []).slice(0, MAX_COLORS_PER_PALETTE);
 
   if (state.sharedColors?.length) {
     const colorNames = state.sharedColors
-      .slice(0, 5)
+      .slice(0, MAX_COLORS_PER_PALETTE)
       .map((hex) => colorNameMap.get(hex) ?? hex);
     return {
       label: "Shared selection",
@@ -21,7 +22,7 @@ export function resolveShareContextFromState(state, colorNameMap = new Map()) {
   if (state.activeFilter === "all" || !state.activeFilter) {
     return {
       label: "Curated color palettes",
-      colors: getPresetById("palette1")?.colors.slice(0, 5) ?? [],
+      colors: getPresetById("palette1")?.colors.slice(0, MAX_COLORS_PER_PALETTE) ?? [],
       paletteId: null,
       view: "all",
       colorNames: [],
@@ -31,7 +32,7 @@ export function resolveShareContextFromState(state, colorNameMap = new Map()) {
   if (state.activeFilter.startsWith("user:")) {
     const id = state.activeFilter.slice(5);
     const palette = state.userPalettes.find((entry) => entry.id === id);
-    const paletteColors = palette?.colors?.slice(0, 5) ?? colors;
+    const paletteColors = palette?.colors?.slice(0, MAX_COLORS_PER_PALETTE) ?? colors;
     return {
       label: palette?.name ?? "My palette",
       colors: paletteColors,
@@ -45,11 +46,11 @@ export function resolveShareContextFromState(state, colorNameMap = new Map()) {
   if (preset) {
     return {
       label: `${preset.emoji} ${preset.label}`,
-      colors: preset.colors.slice(0, 5),
+      colors: preset.colors.slice(0, MAX_COLORS_PER_PALETTE),
       paletteId: preset.id,
       view: "preset",
       colorNames: preset.colors
-        .slice(0, 5)
+        .slice(0, MAX_COLORS_PER_PALETTE)
         .map((hex) => colorNameMap.get(hex) ?? hex),
     };
   }
@@ -82,7 +83,7 @@ export function buildShareDescription(context) {
   }
 
   if (context.colorNames?.length) {
-    return `${context.label} — ${context.colorNames.slice(0, 5).join(", ")}.`;
+    return `${context.label} — ${context.colorNames.slice(0, MAX_COLORS_PER_PALETTE).join(", ")}.`;
   }
 
   if (count) {
@@ -160,7 +161,7 @@ export function resolveShareContextFromUrl(searchParams, presets, nameHexMap = n
         ) ?? null;
       })
       .filter(Boolean)
-      .slice(0, 5);
+      .slice(0, MAX_COLORS_PER_PALETTE);
 
     if (colors.length) {
       return {
@@ -183,7 +184,7 @@ export function resolveShareContextFromUrl(searchParams, presets, nameHexMap = n
   if (preset) {
     return {
       label: `${preset.emoji} ${preset.label}`,
-      colors: preset.colors.slice(0, 5),
+      colors: preset.colors.slice(0, MAX_COLORS_PER_PALETTE),
       paletteId: preset.id,
       view: "preset",
       colorNames: [],
@@ -193,7 +194,7 @@ export function resolveShareContextFromUrl(searchParams, presets, nameHexMap = n
   const fallback = presets[0];
   return {
     label: "Curated color palettes",
-    colors: fallback?.colors?.slice(0, 5) ?? [],
+    colors: fallback?.colors?.slice(0, MAX_COLORS_PER_PALETTE) ?? [],
     paletteId: null,
     view: "all",
     colorNames: [],

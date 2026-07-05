@@ -4,6 +4,7 @@ import {
 } from "./color-utils.js";
 import { getPresetById, presetParamValue, resolvePresetParam } from "./presets.js";
 import { getActiveColors, getUserPaletteById } from "./app-state.js";
+import { MAX_COLORS_PER_PALETTE } from "./user-palettes.js";
 
 const SORT_VALUES = new Set([
   "default",
@@ -32,7 +33,10 @@ export function readUrlState(validHexSet, nameHexMap) {
 
   const colorsParam = params.get("colors");
   if (colorsParam) {
-    const sharedColors = parseColorsParam(colorsParam, validHexSet, nameHexMap);
+    const sharedColors = parseColorsParam(colorsParam, validHexSet, nameHexMap).slice(
+      0,
+      MAX_COLORS_PER_PALETTE,
+    );
     if (sharedColors.length) {
       return {
         sort,
