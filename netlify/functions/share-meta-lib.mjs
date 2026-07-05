@@ -1,14 +1,4 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PRESETS = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, "../../content/assets/js/presets.json"),
-    "utf8",
-  ),
-);
+import PRESETS from "../../content/assets/js/presets.json" with { type: "json" };
 
 const DEFAULT_COLORS = PRESETS[0].colors;
 
