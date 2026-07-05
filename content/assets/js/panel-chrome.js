@@ -57,10 +57,6 @@ export function initPanelChrome(
     return desktopMedia.matches;
   }
 
-  function defaultDock() {
-    return { x: remPx(), y: headerPx() };
-  }
-
   function clampPosition(x, y) {
     const rect = panelEl.getBoundingClientRect();
     const maxX = Math.max(0, window.innerWidth - rect.width);
@@ -72,11 +68,7 @@ export function initPanelChrome(
   }
 
   function isNearDock(pos) {
-    const dock = defaultDock();
-    return (
-      Math.abs(pos.x - dock.x) <= DOCK_THRESHOLD &&
-      Math.abs(pos.y - dock.y) <= DOCK_THRESHOLD
-    );
+    return pos.x <= remPx() + DOCK_THRESHOLD;
   }
 
   function getCurrentPosition() {
@@ -104,12 +96,8 @@ export function initPanelChrome(
   }
 
   function isDockedOpen() {
-    if (!isDesktop() || !visible) return false;
-
-    if (collapsed) return false;
-
+    if (!isDesktop() || !visible || collapsed) return false;
     if (!isFloating()) return true;
-
     return isNearDock(getCurrentPosition());
   }
 
@@ -119,18 +107,14 @@ export function initPanelChrome(
       return;
     }
 
-    const floating = isFloating();
-    const dockedOpen = isDockedOpen();
-    panelEl.classList.toggle("is-docked", dockedOpen && !floating);
+    panelEl.classList.toggle("is-docked", isDockedOpen() && !isFloating());
   }
 
   function syncVisibilityUi() {
     panelEl.classList.toggle("is-dismissed", !visible);
 
-    if (mobileToggle) {
-      if (!visible) {
-        mobileToggle.checked = false;
-      }
+    if (mobileToggle && !visible) {
+      mobileToggle.checked = false;
     }
   }
 
@@ -199,6 +183,7 @@ export function initPanelChrome(
     if (!isDragging) return;
     isDragging = false;
     panelEl.classList.remove("is-dragging");
+
     if (dragHandle?.hasPointerCapture(pointerId)) {
       dragHandle.releasePointerCapture(pointerId);
     }
@@ -221,7 +206,6 @@ export function initPanelChrome(
     isCollapsed: () => collapsed,
     isFloating,
     isDockedOpen,
-    isNearDock,
     setVisible,
   };
 
@@ -316,6 +300,8 @@ export function initPanelChrome(
       controller,
     });
   }
+
+  syncCollapseUi();
 
   if (isDesktop()) {
     restoreDesktopLayout();

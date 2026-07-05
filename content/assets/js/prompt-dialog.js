@@ -6,6 +6,11 @@ function ensureDialog() {
   dialogEl = document.createElement("dialog");
   dialogEl.className = "app-dialog";
   dialogEl.innerHTML = `
+    <button type="button" class="dialog-close-btn app-dialog-dismiss" aria-label="Close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
     <form method="dialog" class="app-dialog-form">
       <p class="app-dialog-message"></p>
       <label class="app-dialog-field">
@@ -19,6 +24,10 @@ function ensureDialog() {
     </form>
   `;
   document.body.appendChild(dialogEl);
+
+  dialogEl.querySelector(".app-dialog-dismiss").addEventListener("click", () => {
+    dialogEl.close("cancel");
+  });
 
   dialogEl.addEventListener("click", (event) => {
     if (event.target === dialogEl) {

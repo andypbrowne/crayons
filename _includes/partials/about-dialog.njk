@@ -1,22 +1,31 @@
 <dialog id="about-dialog" class="about-dialog" aria-labelledby="about-dialog-title">
+	<button type="button" class="dialog-close-btn about-dialog-close" aria-label="Close">
+		<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+			<path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+		</svg>
+	</button>
 	<div class="about-dialog-body">
 		<h2 id="about-dialog-title" class="about-dialog-title">About {{ metadata.title }}</h2>
 		<p class="about-dialog-intro">{{ metadata.description }}.</p>
 		<h3 class="about-dialog-subtitle">How to use</h3>
-		<ul class="about-dialog-list">
+		<ol class="about-dialog-list">
 			<li>Browse every Crayola color in the list</li>
 			<li>Open <strong>Filters</strong> to try a starter palette or build your own</li>
 			<li>Tap <strong>⋯</strong> on a crayon to copy its hex code or add it to a palette</li>
 			<li>Use <strong>Copy link</strong> to share a palette with someone else</li>
+		</ol>
+		<h3 class="about-dialog-subtitle">References</h3>
+		<ul class="about-dialog-list">
+			{% for reference in metadata.aboutReferences %}
+			<li>
+				<a
+					class="about-dialog-link"
+					href="{{ reference.url }}"
+					target="_blank"
+					rel="noopener"
+				>{{ reference.label }}</a>
+			</li>
+			{% endfor %}
 		</ul>
-		<div class="about-dialog-actions">
-			<a
-				class="about-dialog-blog-link"
-				href="{{ metadata.aboutBlogUrl }}"
-				target="_blank"
-				rel="noopener"
-			>Read more on the blog</a>
-			<button type="button" class="about-dialog-close app-dialog-btn">Close</button>
-		</div>
 	</div>
 </dialog>

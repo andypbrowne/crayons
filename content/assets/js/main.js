@@ -2,11 +2,14 @@ import {
   getState,
   setState,
   subscribe,
-  getActiveColors,
+  getVisibleColors,
+  initVisibleColorsContext,
 } from "./app-state.js";
 import { buildValidHexSet, buildHexNameMap, buildNameHexMap } from "./color-utils.js";
 import { applyFilter } from "./filter.js";
 import { initFilterUI } from "./filter-ui.js";
+import { initBrowseFiltersUI } from "./browse-filters-ui.js";
+import { buildFamilyIndex } from "./color-family.js";
 import { initPaletteManager } from "./palette-manager.js";
 import { initRowMenus } from "./row-menu.js";
 import { createSorter } from "./sort.js";
@@ -78,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initPanelChrome(document.getElementById("filters-panel"), {
     id: "filters",
-    title: "Filters",
+    title: "Explore",
     hostEl: document.getElementById("filters-host"),
     mobileToggle: document.getElementById("filters-panel-toggle"),
     registry,
@@ -101,6 +104,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const validHexSet = buildValidHexSet(crayonList);
   const colorNameMap = buildHexNameMap(crayonList);
   const nameHexMap = buildNameHexMap(crayonList);
+  buildFamilyIndex(crayonList);
+  initVisibleColorsContext(validHexSet);
   const userPalettes = loadUserPalettes();
   const urlState = readUrlState(validHexSet, nameHexMap);
   const initialState = resolveInitialFilter(urlState, userPalettes);
@@ -118,10 +123,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function syncPage(state) {
     applySort(state.sort);
-    applyFilter(crayonList, getActiveColors(state));
+    applyFilter(crayonList, getVisibleColors(state));
     writeUrlState(state, colorNameMap);
     updateShareMetaFromState(state, colorNameMap);
   }
+
+  const browseFiltersUi = initBrowseFiltersUI({
+    container: document.getElementById("color-family-filters"),
+    onFamilyChange(colorFamily) {
+      setState({ colorFamily });
+    },
+  });
 
   const filterUi = initFilterUI({
     filterGroup,
@@ -163,12 +175,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const state = getState();
   filterUi.update(state);
+  browseFiltersUi.update(state);
   paletteManager.update(state);
   rowMenus.updateMenus(state);
 
   subscribe((state) => {
     syncPage(state);
     filterUi.update(state);
+    browseFiltersUi.update(state);
     paletteManager.update(state);
     rowMenus.updateMenus(state);
   });

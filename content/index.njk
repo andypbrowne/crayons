@@ -58,9 +58,9 @@ shareMeta: true
 
 <div class="panels-dock-column" id="panels-dock-column">
   <div class="panel-host" id="filters-host" data-panel-id="filters">
-    {{ panelToggleBar("filters-panel-toggle", "Filters") }}
-    <aside class="filter-panel" id="filters-panel" aria-label="Filters">
-      {{ panelChrome("Filters") }}
+    {{ panelToggleBar("filters-panel-toggle", "Explore") }}
+    <aside class="filter-panel" id="filters-panel" aria-label="Explore">
+      {{ panelChrome("Explore") }}
       <div class="filter-panel-content">
         <div class="sort-group">
           <label class="sort-group-label" for="sort-options">Sort</label>
@@ -77,6 +77,11 @@ shareMeta: true
             </svg>
           </div>
         </div>
+
+        <section class="browse-filters-section" aria-labelledby="color-family-heading">
+          <h2 class="filter-section-title" id="color-family-heading">Color family</h2>
+          <div id="color-family-filters" class="color-family-filters" role="group" aria-label="Color family"></div>
+        </section>
 
         <div class="filter-panel-footer">
           <button type="button" id="filter-clear-btn" class="filter-panel-link">Clear filters</button>

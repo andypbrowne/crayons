@@ -158,7 +158,12 @@ export function initPaletteManager({
 
   if (clearButton) {
     clearButton.addEventListener("click", () => {
-      setState({ activeFilter: "all", sharedColors: null, selectedPaletteId: null });
+      setState({
+        activeFilter: "all",
+        sharedColors: null,
+        selectedPaletteId: null,
+        colorFamily: null,
+      });
       onPalettesChange();
     });
   }

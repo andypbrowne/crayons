@@ -1,4 +1,9 @@
 import { getPresetColors } from "./presets.js";
+import {
+  getFamilyAllowedHexes,
+  intersectColorSets,
+} from "./color-family.js";
+import { normalizeHex } from "./color-utils.js";
 
 const SORT_VALUES = new Set([
   "default",
@@ -14,7 +19,10 @@ const state = {
   sharedColors: null,
   userPalettes: [],
   selectedPaletteId: null,
+  colorFamily: null,
 };
+
+let validHexSet = null;
 
 const listeners = new Set();
 
@@ -28,7 +36,12 @@ export function getState() {
       colors: [...palette.colors],
     })),
     selectedPaletteId: state.selectedPaletteId,
+    colorFamily: state.colorFamily,
   };
+}
+
+export function initVisibleColorsContext(hexSet) {
+  validHexSet = hexSet;
 }
 
 export function subscribe(listener) {
@@ -60,6 +73,9 @@ export function setState(partial) {
   if (partial.selectedPaletteId !== undefined) {
     state.selectedPaletteId = partial.selectedPaletteId;
   }
+  if (partial.colorFamily !== undefined) {
+    state.colorFamily = partial.colorFamily;
+  }
   notify();
 }
 
@@ -86,6 +102,25 @@ export function getActiveColors(snapshot = null) {
     return sharedColors?.length ? sharedColors : null;
   }
   return getPresetColors(activeFilter);
+}
+
+export function getVisibleColors(snapshot = null) {
+  const paletteColors = getActiveColors(snapshot);
+  const colorFamily = snapshot ? snapshot.colorFamily : state.colorFamily;
+  const familyColors = getFamilyAllowedHexes(colorFamily, validHexSet);
+
+  if (!paletteColors && !familyColors) {
+    return null;
+  }
+
+  const combined = intersectColorSets(paletteColors, familyColors);
+  if (!combined?.length) {
+    return [];
+  }
+
+  return combined
+    .map((hex) => normalizeHex(hex))
+    .filter(Boolean);
 }
 
 export function getActiveFilterLabel() {
