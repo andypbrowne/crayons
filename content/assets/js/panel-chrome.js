@@ -29,11 +29,15 @@ function headerPx() {
   return parseFloat(val) || 64;
 }
 
-export function initPanelChrome(panelEl, { id, title } = {}) {
-  if (!panelEl || !id) return;
+export function initPanelChrome(
+  panelEl,
+  { id, title, hostEl, mobileToggle, registry } = {},
+) {
+  if (!panelEl || !id) return null;
 
   const dragHandle = panelEl.querySelector(".panel-drag-handle");
   const collapseBtn = panelEl.querySelector(".panel-collapse-btn");
+  const dismissBtn = panelEl.querySelector(".panel-dismiss-btn");
   const titleEl = panelEl.querySelector(".panel-title");
   const desktopMedia = window.matchMedia(DESKTOP_QUERY);
 
@@ -42,6 +46,7 @@ export function initPanelChrome(panelEl, { id, title } = {}) {
   }
 
   const saved = readState(id);
+  let visible = saved.visible !== false;
   let collapsed = Boolean(saved.collapsed);
   let position =
     saved.x != null && saved.y != null ? { x: saved.x, y: saved.y } : null;
@@ -94,26 +99,39 @@ export function initPanelChrome(panelEl, { id, title } = {}) {
     }
   }
 
-  function updateDockedState() {
+  function isFloating() {
+    return panelEl.classList.contains("is-floating");
+  }
+
+  function isDockedOpen() {
+    if (!isDesktop() || !visible) return false;
+
+    if (collapsed) return false;
+
+    if (!isFloating()) return true;
+
+    return isNearDock(getCurrentPosition());
+  }
+
+  function updateDockedClass() {
     if (!isDesktop()) {
-      document.body.classList.remove("has-panel-docked-open");
       panelEl.classList.remove("is-docked");
       return;
     }
 
-    const floating = panelEl.classList.contains("is-floating");
-    let dockedOpen = false;
+    const floating = isFloating();
+    const dockedOpen = isDockedOpen();
+    panelEl.classList.toggle("is-docked", dockedOpen && !floating);
+  }
 
-    if (!collapsed) {
-      if (!floating) {
-        dockedOpen = true;
-      } else {
-        dockedOpen = isNearDock(getCurrentPosition());
+  function syncVisibilityUi() {
+    panelEl.classList.toggle("is-dismissed", !visible);
+
+    if (mobileToggle) {
+      if (!visible) {
+        mobileToggle.checked = false;
       }
     }
-
-    panelEl.classList.toggle("is-docked", dockedOpen && !floating);
-    document.body.classList.toggle("has-panel-docked-open", dockedOpen);
   }
 
   function syncCollapseUi() {
@@ -127,8 +145,8 @@ export function initPanelChrome(panelEl, { id, title } = {}) {
   }
 
   function persist() {
-    const state = { collapsed };
-    if (panelEl.classList.contains("is-floating")) {
+    const state = { visible, collapsed };
+    if (isFloating()) {
       const pos = getCurrentPosition();
       state.x = pos.x;
       state.y = pos.y;
@@ -136,8 +154,36 @@ export function initPanelChrome(panelEl, { id, title } = {}) {
     writeState(id, state);
   }
 
+  function notifyChange() {
+    updateDockedClass();
+    registry?.updateLayout();
+  }
+
+  function setVisible(nextVisible, { expandMobile = false } = {}) {
+    visible = nextVisible;
+    syncVisibilityUi();
+
+    if (visible && expandMobile && mobileToggle && !isDesktop()) {
+      mobileToggle.checked = true;
+    }
+
+    if (!visible && isDesktop()) {
+      setFloating(false);
+      position = null;
+    }
+
+    persist();
+    notifyChange();
+  }
+
   function restoreDesktopLayout() {
+    syncVisibilityUi();
     syncCollapseUi();
+
+    if (!visible) {
+      notifyChange();
+      return;
+    }
 
     if (position) {
       setFloating(true);
@@ -146,7 +192,7 @@ export function initPanelChrome(panelEl, { id, title } = {}) {
       setFloating(false);
     }
 
-    updateDockedState();
+    notifyChange();
   }
 
   function endDrag(pointerId) {
@@ -160,30 +206,47 @@ export function initPanelChrome(panelEl, { id, title } = {}) {
     if (position && isNearDock(position)) {
       setFloating(false);
       position = null;
-    } else if (panelEl.classList.contains("is-floating")) {
+    } else if (isFloating()) {
       position = getCurrentPosition();
     }
 
-    updateDockedState();
     persist();
+    notifyChange();
   }
+
+  const controller = {
+    id,
+    getPanelEl: () => panelEl,
+    isVisible: () => visible,
+    isCollapsed: () => collapsed,
+    isFloating,
+    isDockedOpen,
+    isNearDock,
+    setVisible,
+  };
 
   if (collapseBtn) {
     collapseBtn.addEventListener("click", () => {
       if (!isDesktop()) return;
       collapsed = !collapsed;
       syncCollapseUi();
-      updateDockedState();
       persist();
+      notifyChange();
+    });
+  }
+
+  if (dismissBtn) {
+    dismissBtn.addEventListener("click", () => {
+      setVisible(false);
     });
   }
 
   if (dragHandle) {
     dragHandle.addEventListener("pointerdown", (event) => {
-      if (!isDesktop()) return;
+      if (!isDesktop() || !visible) return;
       event.preventDefault();
 
-      if (!panelEl.classList.contains("is-floating")) {
+      if (!isFloating()) {
         const rect = panelEl.getBoundingClientRect();
         setFloating(true);
         position = applyFloatingPosition(rect.left, rect.top);
@@ -197,7 +260,7 @@ export function initPanelChrome(panelEl, { id, title } = {}) {
         y: event.clientY - rect.top,
       };
       dragHandle.setPointerCapture(event.pointerId);
-      updateDockedState();
+      notifyChange();
     });
 
     dragHandle.addEventListener("pointermove", (event) => {
@@ -206,7 +269,7 @@ export function initPanelChrome(panelEl, { id, title } = {}) {
         event.clientX - dragOffset.x,
         event.clientY - dragOffset.y,
       );
-      updateDockedState();
+      notifyChange();
     });
 
     dragHandle.addEventListener("pointerup", (event) => {
@@ -218,24 +281,48 @@ export function initPanelChrome(panelEl, { id, title } = {}) {
     });
   }
 
+  if (mobileToggle) {
+    mobileToggle.addEventListener("change", () => {
+      if (isDesktop()) return;
+      if (mobileToggle.checked && !visible) {
+        setVisible(true);
+      }
+    });
+  }
+
   window.addEventListener("resize", () => {
-    if (!isDesktop() || !panelEl.classList.contains("is-floating")) return;
+    if (!isDesktop() || !isFloating()) return;
     const pos = getCurrentPosition();
     position = applyFloatingPosition(pos.x, pos.y);
-    updateDockedState();
+    notifyChange();
   });
 
   desktopMedia.addEventListener("change", () => {
     if (!isDesktop()) {
       setFloating(false);
       panelEl.classList.remove("is-collapsed", "is-dragging", "is-docked");
-      document.body.classList.remove("has-panel-docked-open");
+      syncVisibilityUi();
+      registry?.updateLayout();
       return;
     }
     restoreDesktopLayout();
   });
 
+  if (registry && hostEl) {
+    registry.register(id, {
+      hostEl,
+      panelEl,
+      order: id === "filters" ? 0 : 1,
+      controller,
+    });
+  }
+
   if (isDesktop()) {
     restoreDesktopLayout();
+  } else {
+    syncVisibilityUi();
+    registry?.updateLayout();
   }
+
+  return controller;
 }

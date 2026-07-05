@@ -16,6 +16,8 @@ import { isPresetId } from "./presets.js";
 import { showToast } from "./toast.js";
 import { updateShareMetaFromState } from "./share-meta.js";
 import { initPanelChrome } from "./panel-chrome.js";
+import { initPanelRegistry } from "./panel-registry.js";
+import { initPanelMenu } from "./panel-menu.js";
 
 function resolveInitialFilter(urlState, userPalettes) {
   if (urlState.sharedColors?.length) {
@@ -72,9 +74,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!crayonList) return;
 
-  initPanelChrome(document.getElementById("filter-panel"), {
+  const registry = initPanelRegistry();
+
+  initPanelChrome(document.getElementById("filters-panel"), {
     id: "filters",
     title: "Filters",
+    hostEl: document.getElementById("filters-host"),
+    mobileToggle: document.getElementById("filters-panel-toggle"),
+    registry,
+  });
+
+  initPanelChrome(document.getElementById("palettes-panel"), {
+    id: "palettes",
+    title: "Palettes",
+    hostEl: document.getElementById("palettes-host"),
+    mobileToggle: document.getElementById("palettes-panel-toggle"),
+    registry,
+  });
+
+  initPanelMenu({
+    registry,
+    menuEl: document.getElementById("panels-menu"),
+    triggerEl: document.getElementById("panels-menu-trigger"),
   });
 
   const validHexSet = buildValidHexSet(crayonList);

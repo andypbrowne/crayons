@@ -162,6 +162,28 @@
 			<nav>
 				<h2 class="visually-hidden">Top level navigation menu</h2>
 				<ul class="nav">
+					{% if shareMeta %}
+					<li class="nav-item">
+						<button
+							type="button"
+							class="nav-panels-btn"
+							id="panels-menu-trigger"
+							popovertarget="panels-menu"
+							aria-haspopup="menu"
+							aria-controls="panels-menu"
+						>Panels</button>
+						<div
+							id="panels-menu"
+							class="panels-menu"
+							popover="auto"
+							role="menu"
+							aria-labelledby="panels-menu-trigger"
+						>
+							<button type="button" class="panels-menu-item" role="menuitemcheckbox" data-panel-id="filters" aria-checked="true">Filters</button>
+							<button type="button" class="panels-menu-item" role="menuitemcheckbox" data-panel-id="palettes" aria-checked="true">Palettes</button>
+						</div>
+					</li>
+					{% endif %}
 					<li class="nav-item">
 						<button
 							type="button"
