@@ -1240,10 +1240,6 @@ ol.crayons li button.row-actions-btn {
 		display: none;
 	}
 
-	body.has-panel-docked-open {
-		--panel-dock-width: min(430px, calc(100vw - 2rem));
-	}
-
 	.filter-panel.is-floating {
 		position: fixed;
 		z-index: 1001;
@@ -1259,8 +1255,6 @@ ol.crayons li button.row-actions-btn {
 
 	ol.crayons {
 		margin-block-start: 0;
-		margin-inline-start: var(--panel-dock-width, 0);
-		transition: margin-inline-start 0.2s ease;
 		--crayon-height: 2.5rem;
 		--crayon-row-gap: 0.5rem;
 	}
