@@ -232,11 +232,12 @@ header {
 }
 
 .panel-toggle-icon.kebab-btn {
-	width: 2rem;
-	height: 2rem;
+	width: 1.5rem;
+	height: 1.5rem;
 }
 
-.panel-toggle-icon svg {
+.panel-toggle-icon.kebab-btn svg {
+	display: block;
 	width: 20px;
 	height: 20px;
 }
@@ -420,12 +421,14 @@ header {
 	transform: rotate(0deg);
 }
 
-.filter-panel.is-collapsed .filter-panel-content {
-	display: none;
-}
-
 .filter-panel.is-collapsed {
 	gap: 0;
+}
+
+@media (min-width: 1000px) {
+	.filter-panel.is-collapsed .filter-panel-content {
+		display: none;
+	}
 }
 
 .filter-panel.is-dragging {
@@ -747,10 +750,22 @@ ol.crayons .row-actions-btn.kebab-btn {
 }
 
 @media (max-width: 999px) {
+	main {
+		padding-top: 0;
+	}
+
 	.panels-dock-column {
 		margin: -1rem -1rem 1em;
 		padding: 0;
 		gap: 0;
+		max-height: 100dvh;
+		--panel-toggle-bar-height: 3.25rem;
+	}
+
+	.panel-host {
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
 	}
 
 	.panel-toggle-bar {
@@ -759,11 +774,13 @@ ol.crayons .row-actions-btn.kebab-btn {
 		justify-content: space-between;
 		gap: 0.75rem;
 		width: 100%;
+		min-height: var(--panel-toggle-bar-height);
 		padding: 0.75rem 1rem;
 		background-color: rgba(255, 255, 255, 0.8);
 		backdrop-filter: blur(10px);
 		-webkit-backdrop-filter: blur(10px);
 		border-bottom: 1px dashed var(--color-gray-20);
+		flex-shrink: 0;
 	}
 
 	.panel-toggle {
@@ -777,8 +794,10 @@ ol.crayons .row-actions-btn.kebab-btn {
 	.panel-toggle-bar .panel-mobile-close {
 		display: none;
 		flex-shrink: 0;
-		width: 2rem;
-		height: 2rem;
+		width: 2.75rem;
+		height: 2.75rem;
+		min-width: 2.75rem;
+		min-height: 2.75rem;
 	}
 
 	.panel-toggle-input:checked ~ .panel-toggle-bar .panel-mobile-close {
@@ -803,6 +822,22 @@ ol.crayons .row-actions-btn.kebab-btn {
 
 	.panel-toggle-input:checked ~ .filter-panel {
 		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-height: 0;
+		max-height: calc(
+			100dvh - (2 * var(--panel-toggle-bar-height)) - env(safe-area-inset-bottom, 0px)
+		);
+		overflow: hidden;
+	}
+
+	.panel-toggle-input:checked ~ .filter-panel .filter-panel-content {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior: contain;
+		scrollbar-gutter: stable;
 	}
 }
 

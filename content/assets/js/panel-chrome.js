@@ -119,6 +119,11 @@ export function initPanelChrome(
   }
 
   function syncCollapseUi() {
+    if (!isDesktop()) {
+      panelEl.classList.remove("is-collapsed");
+      return;
+    }
+
     panelEl.classList.toggle("is-collapsed", collapsed);
     if (!collapseBtn) return;
     collapseBtn.setAttribute("aria-expanded", String(!collapsed));
@@ -126,6 +131,14 @@ export function initPanelChrome(
       "aria-label",
       collapsed ? "Expand panel" : "Collapse panel",
     );
+  }
+
+  function syncMobileToggleA11y() {
+    if (isDesktop() || !mobileToggle) return;
+    const toggleLabel = hostEl?.querySelector(".panel-toggle");
+    if (!toggleLabel) return;
+    toggleLabel.setAttribute("aria-expanded", String(mobileToggle.checked));
+    toggleLabel.setAttribute("aria-controls", panelEl.id);
   }
 
   function persist() {
@@ -150,6 +163,8 @@ export function initPanelChrome(
     if (visible && expandMobile && mobileToggle && !isDesktop()) {
       mobileToggle.checked = true;
     }
+
+    syncMobileToggleA11y();
 
     if (!visible && isDesktop()) {
       setFloating(false);
@@ -271,6 +286,7 @@ export function initPanelChrome(
       if (mobileToggle.checked && !visible) {
         setVisible(true);
       }
+      syncMobileToggleA11y();
     });
   }
 
@@ -286,6 +302,7 @@ export function initPanelChrome(
       setFloating(false);
       panelEl.classList.remove("is-collapsed", "is-dragging", "is-docked");
       syncVisibilityUi();
+      syncMobileToggleA11y();
       registry?.updateLayout();
       return;
     }
@@ -307,6 +324,7 @@ export function initPanelChrome(
     restoreDesktopLayout();
   } else {
     syncVisibilityUi();
+    syncMobileToggleA11y();
     registry?.updateLayout();
   }
 
