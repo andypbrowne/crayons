@@ -1,0 +1,22 @@
+<dialog id="about-dialog" class="about-dialog" aria-labelledby="about-dialog-title">
+	<div class="about-dialog-body">
+		<h2 id="about-dialog-title" class="about-dialog-title">About {{ metadata.title }}</h2>
+		<p class="about-dialog-intro">{{ metadata.description }}.</p>
+		<h3 class="about-dialog-subtitle">How to use</h3>
+		<ul class="about-dialog-list">
+			<li>Browse every Crayola color in the list</li>
+			<li>Open <strong>Filters</strong> to try a starter palette or build your own</li>
+			<li>Tap <strong>⋯</strong> on a crayon to copy its hex code or add it to a palette</li>
+			<li>Use <strong>Copy link</strong> to share a palette with someone else</li>
+		</ul>
+		<div class="about-dialog-actions">
+			<a
+				class="about-dialog-blog-link"
+				href="{{ metadata.aboutBlogUrl }}"
+				target="_blank"
+				rel="noopener"
+			>Read more on the blog</a>
+			<button type="button" class="about-dialog-close app-dialog-btn">Close</button>
+		</div>
+	</div>
+</dialog>

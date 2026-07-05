@@ -162,7 +162,15 @@
 			<nav>
 				<h2 class="visually-hidden">Top level navigation menu</h2>
 				<ul class="nav">
-					<li class="nav-item"><a target="_blank" href="https://andypbrowne.com/blog/crayons">About</a></li>
+					<li class="nav-item">
+						<button
+							type="button"
+							class="nav-about-btn"
+							id="about-open"
+							aria-haspopup="dialog"
+							aria-controls="about-dialog"
+						>About</button>
+					</li>
 				</ul>
 			</nav>
 		</header>
@@ -173,6 +181,9 @@
 
 		<footer></footer>
 
+		{% include "partials/about-dialog.njk" %}
+
+		<script type="module" src="/assets/js/about-dialog.js"></script>
 		{% if js %}
     		<script type="module" src="{{ js }}"></script>
 		{% endif %}

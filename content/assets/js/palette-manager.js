@@ -9,6 +9,7 @@ import {
 } from "./user-palettes.js";
 import { getState, setState } from "./app-state.js";
 import { showToast, copyText } from "./toast.js";
+import { showConfirm, showPrompt } from "./prompt-dialog.js";
 import { buildShareUrl } from "./url-sync.js";
 
 function createColorTag(colors) {
@@ -102,8 +103,11 @@ export function initPaletteManager({
     showToast("Color removed.");
   }
 
-  function handleRename(palette) {
-    const nextName = window.prompt("Rename palette", palette.name);
+  async function handleRename(palette) {
+    const nextName = await showPrompt({
+      message: "Rename palette",
+      defaultValue: palette.name,
+    });
     if (nextName === null) return;
     const state = getState();
     const result = renamePalette(state.userPalettes, palette.id, nextName);
@@ -115,8 +119,12 @@ export function initPaletteManager({
     showToast("Palette renamed.");
   }
 
-  function handleDelete(palette) {
-    const confirmed = window.confirm(`Delete "${palette.name}"?`);
+  async function handleDelete(palette) {
+    const confirmed = await showConfirm({
+      message: `Delete "${palette.name}"?`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
     if (!confirmed) return;
     const state = getState();
     const result = deletePalette(state.userPalettes, palette.id);
@@ -128,13 +136,13 @@ export function initPaletteManager({
   }
 
   if (newPaletteButton) {
-    newPaletteButton.addEventListener("click", () => {
+    newPaletteButton.addEventListener("click", async () => {
       const state = getState();
       if (state.userPalettes.length >= MAX_PALETTES) {
         showToast("You can save up to 10 palettes.");
         return;
       }
-      const name = window.prompt("Name your new palette");
+      const name = await showPrompt({ message: "Name your new palette" });
       if (name === null) return;
       const result = createPalette(state.userPalettes, name);
       if (!result.ok) {
@@ -162,12 +170,15 @@ export function initPaletteManager({
   }
 
   if (saveSharedButton) {
-    saveSharedButton.addEventListener("click", () => {
+    saveSharedButton.addEventListener("click", async () => {
       const state = getState();
       if (!state.sharedColors?.length) return;
 
       const suggestedName = `Shared palette (${state.sharedColors.length})`;
-      const name = window.prompt("Name this palette", suggestedName);
+      const name = await showPrompt({
+        message: "Name this palette",
+        defaultValue: suggestedName,
+      });
       if (name === null) return;
 
       const result = createPalette(state.userPalettes, name, state.sharedColors);

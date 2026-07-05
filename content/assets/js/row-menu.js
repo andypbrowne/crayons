@@ -1,6 +1,7 @@
 import { MAX_COLORS_PER_PALETTE, MAX_PALETTES } from "./user-palettes.js";
 import { getState } from "./app-state.js";
 import { copyText, showToast } from "./toast.js";
+import { showPrompt } from "./prompt-dialog.js";
 
 export function initRowMenus({ crayonList, paletteManager }) {
   if (!crayonList) return;
@@ -31,7 +32,7 @@ export function initRowMenus({ crayonList, paletteManager }) {
       if (!paletteId) return;
 
       if (paletteId === "__new__") {
-        const name = window.prompt("Name your new palette");
+        const name = await showPrompt({ message: "Name your new palette" });
         if (name === null) return;
         const result = paletteManager.createPaletteWithColor(name, hex);
         if (!result.ok) {

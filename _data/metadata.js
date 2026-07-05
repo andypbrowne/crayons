@@ -3,6 +3,7 @@ module.exports = {
 	"url": "https://crayons.andypbrowne.com/",
 	"language": "en",
 	"description": "Curated color palettes for creative projects",
+	"aboutBlogUrl": "https://andypbrowne.com/blog/crayons",
 	"author": {
 		"name": "Andrew Garber-Browne",
 		"url": "https://andypbrowne.com/about/"
