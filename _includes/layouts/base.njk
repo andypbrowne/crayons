@@ -3,17 +3,115 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>{{ metadata.title }}</title>
+		<title>{% if shareMeta %}Crayons{% else %}{{ title or metadata.title }}{% endif %}</title>
 		<meta name="description" content="{{ description or metadata.description }}">
-		<link rel="icon" type="image/png" href="/img/favicon.png">
 
 		{# SEO and social share properties #}
-		<meta property="og:title" content="{{ title or renderData.title or metadata.title }}"/>
-		<meta property="og:type" content="article" />
-		<meta name="og:description" content="{{ description or renderData.description }}" />
-		<meta property="og:image" content="/{{ thumbnail or renderData.thumbnail or metadata.thumbnail}}">
-		<meta name="twitter:image:alt" content="{{ thumbnailAlt or renderData.thumbnailAlt or metadata.thumbnailAlt }}">
-		<meta property="og:url" content="{{ page.url }}">
+		<meta property="og:title" content="{% if shareMeta %}Crayons{% else %}{{ title or renderData.title or metadata.title }}{% endif %}"/>
+		<meta property="og:type" content="{% if shareMeta %}website{% else %}article{% endif %}" />
+		<meta property="og:description" content="{{ description or metadata.description }}" />
+		<meta property="og:image" content="{{ metadata.url }}og">
+		<meta property="og:url" content="{{ metadata.url }}{% if page.url != '/' %}{{ page.url | url }}{% endif %}">
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="{% if shareMeta %}Crayons{% else %}{{ title or renderData.title or metadata.title }}{% endif %}">
+		<meta name="twitter:description" content="{{ description or metadata.description }}">
+		<meta name="twitter:image" content="{{ metadata.url }}og">
+		<meta name="twitter:image:alt" content="{{ thumbnailAlt or renderData.thumbnailAlt or metadata.description }}">
+
+		{% if shareMeta %}
+		<script id="presets-bootstrap" type="application/json">{{ presetPalettes | toJson | safe }}</script>
+		<script id="color-slugs-bootstrap" type="application/json">{{ colorSlugMap | toJson | safe }}</script>
+		<script>
+		(function () {
+			var presets = JSON.parse(document.getElementById("presets-bootstrap").textContent);
+			var colorSlugs = JSON.parse(document.getElementById("color-slugs-bootstrap").textContent);
+			var params = new URLSearchParams(window.location.search);
+			var colorsParam = params.get("colors");
+			var paletteParam = params.get("palette");
+			var context = { label: "Curated color palettes", colors: presets[0].colors.slice(0, 8), view: "all" };
+
+			function slugify(value) {
+				return String(value).trim().toLowerCase()
+					.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+					.replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+			}
+
+			function findPreset(param) {
+				if (!param || param === "all") return null;
+				return presets.find(function (entry) {
+					return entry.slug === param || entry.id === param || slugify(entry.label) === slugify(param);
+				}) || null;
+			}
+
+			if (colorsParam) {
+				var colors = colorsParam.split(",").map(function (part) {
+					var raw = part.trim().replace(/^#/, "").toUpperCase();
+					if (/^[0-9A-F]{6}$/.test(raw)) return "#" + raw;
+					return colorSlugs[slugify(part)] || null;
+				}).filter(Boolean).slice(0, 8);
+				if (colors.length) {
+					context = { label: "Custom palette", colors: colors, view: "custom" };
+				}
+			} else {
+				var preset = findPreset(paletteParam);
+				if (preset) {
+					context = {
+						label: preset.emoji + " " + preset.label,
+						colors: preset.colors.slice(0, 8),
+						view: "preset",
+						paletteId: preset.id,
+						paletteSlug: preset.slug
+					};
+				}
+			}
+
+			var description = context.view === "all"
+				? "Browse all Crayola colors with curated starter palettes for creative projects."
+				: context.view === "preset"
+					? context.label + " — a curated palette of " + context.colors.length + " Crayola colors."
+					: context.label + " — a custom palette of " + context.colors.length + " Crayola colors.";
+
+			var imageParams = new URLSearchParams();
+			if (context.paletteSlug) {
+				imageParams.set("palette", context.paletteSlug);
+			} else if (context.colors.length) {
+				imageParams.set("colors", context.colors.map(function (hex) {
+					for (var slug in colorSlugs) {
+						if (colorSlugs[slug].toUpperCase() === hex.toUpperCase()) return slug;
+					}
+					return hex.slice(1);
+				}).join(","));
+			}
+
+			var origin = window.location.origin;
+			var imageUrl = imageParams.toString() ? origin + "/og?" + imageParams.toString() : origin + "/og";
+			var pageUrl = window.location.href;
+
+			function setMeta(selector, value, attr) {
+				var tag = document.head.querySelector(selector);
+				if (!tag) {
+					tag = document.createElement("meta");
+					tag.setAttribute(attr, selector.match(/"([^"]+)"/)[1]);
+					document.head.appendChild(tag);
+				}
+				tag.setAttribute("content", value);
+			}
+
+			document.title = "Crayons";
+			setMeta('meta[name="description"]', description, "name");
+			setMeta('meta[property="og:title"]', "Crayons", "property");
+			setMeta('meta[property="og:description"]', description, "property");
+			setMeta('meta[property="og:image"]', imageUrl, "property");
+			setMeta('meta[property="og:url"]', pageUrl, "property");
+			setMeta('meta[name="twitter:title"]', "Crayons", "name");
+			setMeta('meta[name="twitter:description"]', description, "name");
+			setMeta('meta[name="twitter:image"]', imageUrl, "name");
+			setMeta('meta[name="twitter:image:alt"]', description, "name");
+		})();
+		</script>
+		{% endif %}
+
+		<link rel="icon" type="image/png" href="/img/favicon.png">
 		
 		{#- Atom and JSON feeds included by default #}
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="{{ metadata.title }}">
@@ -34,22 +132,74 @@
 		{#- <link rel="stylesheet" href="{% getBundleFileUrl "css" %}"> #}
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/19.1.1/tooltips.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	</head>
-	<body>
+	<body{% if shareMeta %} class="has-filter-actions"{% endif %}>
 		<a href="#skip" class="visually-hidden">Skip to main content</a>
 
 		<header>
-			<div>
+			<div class="header-brand">
 				<a href="/" class="home-link">{{ metadata.title }}</a>
-				<span style="font-style: italic;">{{ metadata.description }}</span>
+				<p class="header-description">{{ metadata.description }}</p>
+				<button
+					type="button"
+					class="header-description-toggle"
+					popovertarget="header-description-popover"
+					aria-label="About this site"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+						<circle cx="9" cy="9" r="7.25" fill="none" stroke="currentColor" stroke-width="1.5"/>
+						<path d="M9 8.25v4.5M9 5.75h.01" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+					</svg>
+				</button>
+				<div
+					id="header-description-popover"
+					class="header-description-popover"
+					popover="auto"
+				>
+					<p class="header-description-popover-text">{{ metadata.description }}</p>
+				</div>
 			</div>
 			{#- Read more about `eleventy-navigation` at https://www.11ty.dev/docs/plugins/navigation/ #}
-			<nav>
+			<nav class="header-nav">
 				<h2 class="visually-hidden">Top level navigation menu</h2>
 				<ul class="nav">
-					<li class="nav-item"><a href="https://andypbrowne.com/blog/crayons">About</a></li>
+					{% if shareMeta %}
+					<li class="nav-item">
+						<button
+							type="button"
+							class="nav-action-btn nav-panels-btn"
+							id="panels-menu-trigger"
+							popovertarget="panels-menu"
+							aria-haspopup="menu"
+							aria-controls="panels-menu"
+						>Panels</button>
+						<div
+							id="panels-menu"
+							class="panels-menu"
+							popover="auto"
+							role="menu"
+							aria-labelledby="panels-menu-trigger"
+						>
+							<button type="button" class="panels-menu-item" role="menuitemcheckbox" data-panel-id="filters" aria-checked="true">Explore</button>
+							<button type="button" class="panels-menu-item" role="menuitemcheckbox" data-panel-id="palettes" aria-checked="true">Palettes</button>
+						</div>
+					</li>
+					{% endif %}
+					<li class="nav-item">
+						<button
+							type="button"
+							class="nav-action-btn nav-about-btn"
+							id="about-open"
+							aria-haspopup="dialog"
+							aria-controls="about-dialog"
+						>About</button>
+					</li>
 				</ul>
 			</nav>
 		</header>
+
+		{% if shareMeta %}
+		{% include "partials/filter-actions.njk" %}
+		{% endif %}
 
 		<main id="skip">
 			{{ content | safe }}
@@ -57,6 +207,9 @@
 
 		<footer></footer>
 
+		{% include "partials/about-dialog.njk" %}
+
+		<script type="module" src="/assets/js/about-dialog.js"></script>
 		{% if js %}
     		<script type="module" src="{{ js }}"></script>
 		{% endif %}
