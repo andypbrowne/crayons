@@ -6,6 +6,7 @@ export const MAX_COLORS_PER_PALETTE = 8;
 const DEFAULT_COLORS = PRESETS[0].colors;
 
 const NAME_HEX_MAP = buildNameHexMap();
+const HEX_NAME_MAP = buildHexNameMap();
 
 function slugifyLabel(value) {
   return String(value)
@@ -27,6 +28,21 @@ function buildNameHexMap() {
     }
   }
   return map;
+}
+
+function buildHexNameMap() {
+  const map = new Map();
+  for (const entry of CRAYOLA) {
+    const hex = normalizeHex(entry.hex);
+    if (hex) {
+      map.set(hex, entry.color);
+    }
+  }
+  return map;
+}
+
+export function colorNameForHex(hex) {
+  return HEX_NAME_MAP.get(normalizeHex(hex)) ?? normalizeHex(hex)?.slice(1) ?? "Color";
 }
 
 export function normalizeHex(value) {

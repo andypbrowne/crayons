@@ -158,9 +158,8 @@
 					<p class="header-description-popover-text">{{ metadata.description }}</p>
 				</div>
 			</div>
-			<div class="header-toolbar">
 			{#- Read more about `eleventy-navigation` at https://www.11ty.dev/docs/plugins/navigation/ #}
-			<nav>
+			<nav class="header-nav">
 				<h2 class="visually-hidden">Top level navigation menu</h2>
 				<ul class="nav">
 					{% if shareMeta %}
@@ -196,11 +195,11 @@
 					</li>
 				</ul>
 			</nav>
-			{% if shareMeta %}
-			{% include "partials/filter-actions.njk" %}
-			{% endif %}
-			</div>
 		</header>
+
+		{% if shareMeta %}
+		{% include "partials/filter-actions.njk" %}
+		{% endif %}
 
 		<main id="skip">
 			{{ content | safe }}
