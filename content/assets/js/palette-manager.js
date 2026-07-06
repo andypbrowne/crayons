@@ -163,6 +163,7 @@ export function initPaletteManager({
         sharedColors: null,
         selectedPaletteId: null,
         colorFamily: null,
+        theme: null,
       });
       onPalettesChange();
     });
