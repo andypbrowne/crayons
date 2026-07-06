@@ -9,7 +9,9 @@ import { buildValidHexSet, buildHexNameMap, buildNameHexMap } from "./color-util
 import { applyFilter } from "./filter.js";
 import { initFilterUI } from "./filter-ui.js";
 import { initBrowseFiltersUI } from "./browse-filters-ui.js";
+import { initThemeFilterUI } from "./theme-filter-ui.js";
 import { buildFamilyIndex } from "./color-family.js";
+import { buildThemeIndex } from "./color-theme.js";
 import { initPaletteManager } from "./palette-manager.js";
 import { initRowMenus } from "./row-menu.js";
 import { createSorter } from "./sort.js";
@@ -105,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const colorNameMap = buildHexNameMap(crayonList);
   const nameHexMap = buildNameHexMap(crayonList);
   buildFamilyIndex(crayonList);
+  buildThemeIndex(crayonList);
   initVisibleColorsContext(validHexSet);
   const userPalettes = loadUserPalettes();
   const urlState = readUrlState(validHexSet, nameHexMap);
@@ -132,6 +135,13 @@ document.addEventListener("DOMContentLoaded", () => {
     container: document.getElementById("color-family-filters"),
     onFamilyChange(colorFamily) {
       setState({ colorFamily });
+    },
+  });
+
+  const themeFilterUi = initThemeFilterUI({
+    select: document.getElementById("theme-options"),
+    onThemeChange(theme) {
+      setState({ theme });
     },
   });
 
@@ -176,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const state = getState();
   filterUi.update(state);
   browseFiltersUi.update(state);
+  themeFilterUi.update(state);
   paletteManager.update(state);
   rowMenus.updateMenus(state);
 
@@ -183,6 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     syncPage(state);
     filterUi.update(state);
     browseFiltersUi.update(state);
+    themeFilterUi.update(state);
     paletteManager.update(state);
     rowMenus.updateMenus(state);
   });

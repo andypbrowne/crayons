@@ -3,6 +3,7 @@ import {
   getFamilyAllowedHexes,
   intersectColorSets,
 } from "./color-family.js";
+import { getThemeAllowedHexes } from "./color-theme.js";
 import { normalizeHex } from "./color-utils.js";
 
 const SORT_VALUES = new Set([
@@ -20,6 +21,7 @@ const state = {
   userPalettes: [],
   selectedPaletteId: null,
   colorFamily: null,
+  theme: null,
 };
 
 let validHexSet = null;
@@ -37,6 +39,7 @@ export function getState() {
     })),
     selectedPaletteId: state.selectedPaletteId,
     colorFamily: state.colorFamily,
+    theme: state.theme,
   };
 }
 
@@ -76,6 +79,9 @@ export function setState(partial) {
   if (partial.colorFamily !== undefined) {
     state.colorFamily = partial.colorFamily;
   }
+  if (partial.theme !== undefined) {
+    state.theme = partial.theme;
+  }
   notify();
 }
 
@@ -107,13 +113,18 @@ export function getActiveColors(snapshot = null) {
 export function getVisibleColors(snapshot = null) {
   const paletteColors = getActiveColors(snapshot);
   const colorFamily = snapshot ? snapshot.colorFamily : state.colorFamily;
+  const theme = snapshot ? snapshot.theme : state.theme;
   const familyColors = getFamilyAllowedHexes(colorFamily, validHexSet);
+  const themeColors = getThemeAllowedHexes(theme, validHexSet);
 
-  if (!paletteColors && !familyColors) {
+  if (!paletteColors && !familyColors && !themeColors) {
     return null;
   }
 
-  const combined = intersectColorSets(paletteColors, familyColors);
+  const combined = intersectColorSets(
+    intersectColorSets(paletteColors, familyColors),
+    themeColors,
+  );
   if (!combined?.length) {
     return [];
   }
