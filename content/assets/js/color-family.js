@@ -33,7 +33,7 @@ export function getColorFamily(hex) {
 
   const { h, s, l } = hexToHSL(normalized);
 
-  if (s <= 12 || l <= 8 || l >= 92) {
+  if (s <= 12 || l <= 8 || (l >= 92 && s <= 30)) {
     return "neutral";
   }
 
