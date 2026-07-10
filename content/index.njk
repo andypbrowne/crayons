@@ -105,12 +105,11 @@ shareMeta: true
       {{ panelChrome("Palettes") }}
       <div class="filter-panel-content">
         <section class="starter-palettes-section" aria-labelledby="starter-palettes-heading">
-          <h2 class="filter-section-title" id="starter-palettes-heading">Starter Palettes</h2>
+          <div class="starter-palettes-zone-header">
+            <h2 class="filter-section-title" id="starter-palettes-heading">Starter Palettes</h2>
+            <button type="button" id="starter-palettes-toggle" class="starter-palettes-toggle" aria-expanded="false">Show more</button>
+          </div>
           <div class="starter-palettes-zone">
-            <div class="starter-palettes-zone-header">
-              <span class="starter-palettes-zone-title">Starter Palettes</span>
-              <button type="button" id="starter-palettes-toggle" class="starter-palettes-toggle" aria-expanded="true">Show less</button>
-            </div>
             <div id="palette-filter-group" class="starter-palettes-list" role="radiogroup" aria-label="Starter palettes"></div>
           </div>
         </section>

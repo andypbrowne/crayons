@@ -594,11 +594,6 @@ header {
 	display: none !important;
 }
 
-.starter-palettes-toggle {
-	min-height: 2.75rem;
-	padding: 0.5rem 0;
-}
-
 .starter-palette-option {
 	display: flex;
 	align-items: center;

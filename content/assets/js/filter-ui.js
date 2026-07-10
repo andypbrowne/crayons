@@ -14,7 +14,7 @@ export function initFilterUI({
     return { update() {} };
   }
 
-  let collapsed = false;
+  let collapsed = true;
   let sortListenerBound = false;
 
   filterGroup.addEventListener("change", (event) => {
