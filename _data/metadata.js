@@ -9,6 +9,10 @@ module.exports = {
 			"url": "https://andypbrowne.com/blog/crayons"
 		},
 		{
+			"label": "GitHub repository",
+			"url": "https://github.com/andypbrowne/crayons"
+		},
+		{
 			"label": "Corpora crayola.json",
 			"url": "https://github.com/dariusk/corpora/blob/master/data/colors/crayola.json"
 		},
