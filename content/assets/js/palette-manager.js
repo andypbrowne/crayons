@@ -152,7 +152,9 @@ export function initPaletteManager({
       persistPalettes(result.palettes, {
         selectedPaletteId: result.palette.id,
       });
-      showToast("Choose your colors from the list.");
+      showToast("Palette created. Tap ⋯ on a crayon → Manage palette.", {
+        persistent: true,
+      });
     });
   }
 
@@ -253,6 +255,17 @@ export function initPaletteManager({
       row.appendChild(actions);
       container.appendChild(row);
     });
+
+    const selectedPalette = state.userPalettes.find(
+      (palette) => palette.id === state.selectedPaletteId,
+    );
+    if (selectedPalette && selectedPalette.colors.length === 0) {
+      const hint = document.createElement("p");
+      hint.className = "user-palette-empty-hint";
+      hint.textContent =
+        "Add colors from the list — tap ⋯ on a crayon.";
+      container.appendChild(hint);
+    }
   }
 
   return {
