@@ -242,7 +242,15 @@ export function initPaletteManager({
         if (event.target.closest(".palette-kebab-btn, .palette-kebab-menu")) return;
 
         if (palette.colors.length === 0) {
-          setState({ selectedPaletteId: palette.id });
+          setState({
+            selectedPaletteId: isSelected ? null : palette.id,
+          });
+          return;
+        }
+
+        if (isActive) {
+          onFilterChange("all");
+          setState({ selectedPaletteId: null });
           return;
         }
 
