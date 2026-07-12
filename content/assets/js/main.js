@@ -23,6 +23,7 @@ import { updateShareMetaFromState } from "./share-meta.js";
 import { initPanelChrome } from "./panel-chrome.js";
 import { initPanelRegistry } from "./panel-registry.js";
 import { initPanelMenu } from "./panel-menu.js";
+import { initLayoutUI, loadSavedLayout } from "./layout-ui.js";
 
 function resolveInitialFilter(urlState, userPalettes) {
   if (urlState.sharedColors?.length) {
@@ -111,7 +112,10 @@ document.addEventListener("DOMContentLoaded", () => {
   initVisibleColorsContext(validHexSet);
   const userPalettes = loadUserPalettes();
   const urlState = readUrlState(validHexSet, nameHexMap);
-  const initialState = resolveInitialFilter(urlState, userPalettes);
+  const initialState = {
+    ...resolveInitialFilter(urlState, userPalettes),
+    layout: loadSavedLayout(),
+  };
 
   if (
     urlState.sharedColors?.length === 0 &&
@@ -130,6 +134,11 @@ document.addEventListener("DOMContentLoaded", () => {
     writeUrlState(state, colorNameMap);
     updateShareMetaFromState(state, colorNameMap);
   }
+
+  const layoutUi = initLayoutUI({
+    crayonList,
+    select: document.getElementById("layout-options"),
+  });
 
   const browseFiltersUi = initBrowseFiltersUI({
     container: document.getElementById("color-family-filters"),
@@ -189,6 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
   themeFilterUi.update(state);
   paletteManager.update(state);
   rowMenus.updateMenus(state);
+  layoutUi.update(state);
 
   subscribe((state) => {
     syncPage(state);
@@ -197,7 +207,9 @@ document.addEventListener("DOMContentLoaded", () => {
     themeFilterUi.update(state);
     paletteManager.update(state);
     rowMenus.updateMenus(state);
+    layoutUi.update(state);
   });
 
   syncPage(state);
+  layoutUi.update(getState());
 });

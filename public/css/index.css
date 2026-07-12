@@ -139,6 +139,149 @@ ol.crayons li > button {
 	height: 2.2rem;
 }
 
+/* Alternate crayon layouts */
+ol.crayons[data-layout="grid"] {
+	--crayon-grid-track: calc(var(--crayon-height) * 1172 / 121 + 2.75rem);
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--crayon-grid-track)), 1fr));
+	gap: var(--crayon-row-gap, 0.375rem) 0.75rem;
+	align-items: start;
+	justify-items: start;
+}
+
+ol.crayons[data-layout="grid"] li {
+	width: max-content;
+	max-width: 100%;
+	justify-content: flex-start;
+	min-width: 0;
+}
+
+ol.crayons[data-layout="grid"] li figure {
+	/* Match list crayon size: height drives width via aspect-ratio */
+	max-width: none;
+}
+
+ol.crayons[data-layout="arc"],
+ol.crayons[data-layout="pile"] {
+	display: block;
+	position: relative;
+	width: 100%;
+}
+
+ol.crayons[data-layout="arc"] {
+	height: var(--arc-stage-height, 22rem);
+	overflow-x: auto;
+	overflow-y: hidden;
+	touch-action: pan-x;
+}
+
+ol.crayons[data-layout="arc"]::before {
+	content: "";
+	display: block;
+	width: var(--arc-stage-width, 100%);
+	height: 1px;
+}
+
+ol.crayons[data-layout="pile"] {
+	min-height: min(70vh, 38rem);
+	height: min(70vh, 38rem);
+	overflow: hidden;
+	border-radius: 12px;
+	background:
+		radial-gradient(circle at 20% 20%, rgb(0 0 0 / 3%), transparent 45%),
+		radial-gradient(circle at 80% 70%, rgb(0 0 0 / 4%), transparent 40%);
+}
+
+ol.crayons[data-layout="arc"] li,
+ol.crayons[data-layout="pile"] li {
+	position: absolute;
+	width: auto;
+	margin: 0;
+	content-visibility: visible;
+	contain-intrinsic-size: auto;
+}
+
+ol.crayons[data-layout="arc"] li {
+	left: var(--arc-x, 0);
+	top: var(--arc-y, 0);
+	transform: rotate(var(--arc-rotate, 0deg));
+	transform-origin: center center;
+	--crayon-height: 1.75rem;
+}
+
+ol.crayons[data-layout="pile"] li {
+	left: var(--pile-x, 50%);
+	top: var(--pile-y, 50%);
+	z-index: var(--pile-z, 1);
+	transform: translate(-50%, -50%) rotate(var(--pile-rotate, 0deg));
+	transform-origin: center center;
+	--crayon-height: 1.65rem;
+}
+
+ol.crayons[data-layout="pile"] li:hover,
+ol.crayons[data-layout="pile"] li:focus-within {
+	z-index: 200;
+}
+
+ol.crayons[data-layout="arc"] li figure,
+ol.crayons[data-layout="pile"] li figure {
+	max-width: none;
+}
+
+ol.crayons[data-layout="arc"] .row-actions-btn,
+ol.crayons[data-layout="pile"] .row-actions-btn {
+	background: var(--background-color, #fff);
+	box-shadow: 0 1px 4px rgb(0 0 0 / 12%);
+}
+
+@media (max-width: 48em) {
+	ol.crayons[data-layout="pile"] {
+		min-height: min(65vh, 28rem);
+		height: min(65vh, 28rem);
+	}
+}
+
+.filter-layout-control {
+	display: inline-flex;
+	align-items: center;
+	margin-left: auto;
+}
+
+.filter-layout-select-wrap {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+}
+
+.filter-layout-select {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	margin: 0;
+	padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+	border: 1px solid var(--color-gray-20, #e0e0e0);
+	border-radius: 6px;
+	background-color: #fff;
+	color: var(--text-color, #222);
+	font: inherit;
+	font-size: 0.875rem;
+	line-height: 1.2;
+	cursor: pointer;
+}
+
+.filter-layout-select:hover {
+	border-color: var(--color-gray-50, #c0c0c0);
+}
+
+.filter-layout-chevron {
+	position: absolute;
+	right: 0.35rem;
+	width: 14px;
+	height: 14px;
+	pointer-events: none;
+	opacity: 0.7;
+}
+
 /* https://www.a11yproject.com/posts/how-to-hide-content/ */
 .visually-hidden {
 	clip: rect(0 0 0 0);
@@ -1500,6 +1643,23 @@ ol.crayons li button.row-actions-btn {
 		background-color: var(--filter-panel-bg);
 		color: var(--filter-text);
 		color-scheme: dark;
+	}
+
+	.filter-layout-select {
+		border-color: var(--filter-panel-border, #3d4f61);
+		background-color: var(--filter-panel-bg, #15202b);
+		color: var(--filter-text);
+		color-scheme: dark;
+	}
+
+	.filter-layout-select option {
+		background-color: var(--filter-panel-bg);
+		color: var(--filter-text);
+	}
+
+	ol.crayons[data-layout="arc"] .row-actions-btn,
+	ol.crayons[data-layout="pile"] .row-actions-btn {
+		background: var(--filter-panel-bg, #15202b);
 	}
 
 	.starter-palette-option input[type="radio"] {

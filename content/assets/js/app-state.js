@@ -14,8 +14,11 @@ const SORT_VALUES = new Set([
   "saturation",
 ]);
 
+export const LAYOUT_VALUES = new Set(["list", "grid", "arc", "pile"]);
+
 const state = {
   sort: "default",
+  layout: "list",
   activeFilter: "all",
   sharedColors: null,
   userPalettes: [],
@@ -31,6 +34,7 @@ const listeners = new Set();
 export function getState() {
   return {
     sort: state.sort,
+    layout: state.layout,
     activeFilter: state.activeFilter,
     sharedColors: state.sharedColors ? [...state.sharedColors] : null,
     userPalettes: state.userPalettes.map((palette) => ({
@@ -60,6 +64,9 @@ function notify() {
 export function setState(partial) {
   if (partial.sort !== undefined) {
     state.sort = SORT_VALUES.has(partial.sort) ? partial.sort : "default";
+  }
+  if (partial.layout !== undefined) {
+    state.layout = LAYOUT_VALUES.has(partial.layout) ? partial.layout : "list";
   }
   if (partial.activeFilter !== undefined) {
     state.activeFilter = partial.activeFilter;
