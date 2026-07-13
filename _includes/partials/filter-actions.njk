@@ -1,19 +1,21 @@
 <div class="filter-actions-bar" role="toolbar" aria-label="Filter shortcuts">
-	<button type="button" class="filter-action-btn" id="filter-clear-btn">Clear filters</button>
+	<button type="button" class="filter-action-btn" id="filter-clear-btn" aria-label="Clear filters">
+		Clear<span class="filter-action-extra"> filters</span>
+	</button>
 	<button type="button" class="filter-action-btn filter-copy-link-btn" id="filter-copy-link-btn">
 		{% include "partials/copy-icon.njk" %}
 		Copy link
 	</button>
 	<label class="filter-layout-control">
 		<span class="visually-hidden">Layout</span>
-		<span class="filter-layout-select-wrap">
-			<select class="filter-layout-select" id="layout-options" aria-label="Layout">
+		<span class="sort-select-wrap header-select-wrap">
+			<select class="sort" id="layout-options" aria-label="Layout">
 				<option value="list" selected>List</option>
 				<option value="grid">Grid</option>
 				<option value="arc">Arc</option>
 				<option value="pile">Pile</option>
 			</select>
-			<svg class="filter-layout-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+			<svg class="sort-select-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
 				<path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 			</svg>
 		</span>
