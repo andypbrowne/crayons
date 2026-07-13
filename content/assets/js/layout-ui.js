@@ -204,7 +204,8 @@ function createArcController(crayonList) {
     if (!dragging) return;
     const dx = event.clientX - lastPointerX;
     lastPointerX = event.clientX;
-    nudgeOffset(dx * ARC_DRAG_SCALE);
+    // Negate so the arc follows the pointer (grab-and-drag).
+    nudgeOffset(-dx * ARC_DRAG_SCALE);
   }
 
   function onPointerUp(event) {
