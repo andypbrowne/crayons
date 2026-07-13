@@ -37,19 +37,17 @@ function hashHex(hex) {
 
 function seedPileVars(crayonList) {
   crayonList.querySelectorAll("li[data-hex]").forEach((item) => {
-    if (item.dataset.pileReady === "1") return;
-
     const hash = hashHex(item.dataset.hex);
     const rotate = (hash % 141) - 70;
-    const x = 4 + (hash % 860) / 10;
-    const y = 6 + ((Math.floor(hash / 9) % 820) / 10);
+    // Keep inset so list-sized rotated crayons stay on stage
+    const x = 14 + (hash % 720) / 10;
+    const y = 16 + (Math.floor(hash / 9) % 680) / 10;
     const z = (hash % 60) + 1;
 
     item.style.setProperty("--pile-rotate", `${rotate}deg`);
     item.style.setProperty("--pile-x", `${x}%`);
     item.style.setProperty("--pile-y", `${y}%`);
     item.style.setProperty("--pile-z", String(z));
-    item.dataset.pileReady = "1";
   });
 }
 
