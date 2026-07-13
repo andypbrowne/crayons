@@ -83,6 +83,7 @@ ol.crayons li {
 	justify-content: center;
 	gap: 0.375rem;
 	width: 100%;
+	min-width: 0;
 	content-visibility: auto;
 	contain-intrinsic-size: auto 2.625rem;
 	--crayon-wrapper: oklch(from var(--crayon-color) clamp(
@@ -96,10 +97,11 @@ ol.crayons li {
 ol.crayons li figure {
 	margin: 0;
 	position: relative;
-	flex: none;
-	flex-shrink: 0;
-	width: calc(var(--crayon-height) * 1172 / 121);
-	max-width: none;
+	/* List: fill remaining row space, capped at the natural crayon aspect size */
+	flex: 1 1 0;
+	min-width: 0;
+	width: auto;
+	max-width: calc(var(--crayon-height) * 1172 / 121);
 	line-height: 0;
 }
 
@@ -112,10 +114,27 @@ ol.crayons li figure {
 
 ol.crayons li figure svg.crayon-svg {
 	display: block;
-	height: var(--crayon-height);
 	width: 100%;
+	height: auto;
 	aspect-ratio: 1172 / 121;
+	max-height: var(--crayon-height);
+}
+
+/* Grid / arc / pile keep the locked natural crayon size */
+ol.crayons[data-layout="grid"] li figure,
+ol.crayons[data-layout="arc"] li figure,
+ol.crayons[data-layout="pile"] li figure {
+	flex: none;
+	min-width: auto;
+	width: calc(var(--crayon-height) * 1172 / 121);
 	max-width: none;
+}
+
+ol.crayons[data-layout="grid"] li figure svg.crayon-svg,
+ol.crayons[data-layout="arc"] li figure svg.crayon-svg,
+ol.crayons[data-layout="pile"] li figure svg.crayon-svg {
+	height: var(--crayon-height);
+	max-height: none;
 }
 
 .crayon-label {
@@ -344,16 +363,16 @@ body, main {
 }
 
 main {
-	padding: 1rem;
+	padding: var(--layout-gutter);
 	/* min-height: 200vh; */
 }
 main :first-child {
 	margin-top: 0;
 }
 
-/* Full-width crayon stage: drop side padding so the list can use the viewport */
+/* Shared page gutter: header, main, and panel chrome all align to this */
 .has-filter-actions main {
-	padding-inline: 0;
+	padding-inline: var(--layout-gutter);
 	overflow: visible;
 }
 
@@ -361,8 +380,15 @@ main :first-child {
 .has-filter-actions .crayon-list-empty {
 	width: 100%;
 	max-width: none;
-	padding-inline: var(--layout-gutter);
+	padding-inline: 0;
 	box-sizing: border-box;
+}
+
+/* Arc / pile can use the full viewport width under the gutters */
+.has-filter-actions ol.crayons[data-layout="arc"],
+.has-filter-actions ol.crayons[data-layout="pile"] {
+	margin-inline: calc(-1 * var(--layout-gutter));
+	width: calc(100% + 2 * var(--layout-gutter));
 }
 
 header {
@@ -604,7 +630,7 @@ header {
 	backdrop-filter: var(--surface-glass-blur, blur(10px));
 	-webkit-backdrop-filter: var(--surface-glass-blur, blur(10px));
 	border: 1px solid var(--filter-panel-border, #e0e0e0);
-	padding: 1rem;
+	padding: var(--layout-gutter);
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -1064,13 +1090,14 @@ ol.crayons .row-actions-btn.kebab-btn {
 	}
 
 	.panels-dock-column {
-		margin: 0 -1rem 1em;
+		margin: 0 calc(-1 * var(--layout-gutter)) 1em;
 		padding: 0;
 		gap: 0;
 		position: sticky;
 		top: 0;
 		z-index: 1000;
 		max-height: 100dvh;
+		width: calc(100% + 2 * var(--layout-gutter));
 		--panel-toggle-bar-height: 3.25rem;
 	}
 
@@ -1087,7 +1114,7 @@ ol.crayons .row-actions-btn.kebab-btn {
 		gap: 0.75rem;
 		width: 100%;
 		min-height: var(--panel-toggle-bar-height);
-		padding: 0.75rem 1rem;
+		padding: 0.75rem var(--layout-gutter);
 		background-color: var(--surface-glass, rgba(255, 255, 255, 0.8));
 		backdrop-filter: var(--surface-glass-blur, blur(10px));
 		-webkit-backdrop-filter: var(--surface-glass-blur, blur(10px));
@@ -1808,7 +1835,7 @@ header {
 	column-gap: 1em;
 	row-gap: 0.375rem;
 	width: 100%;
-	padding: 1em;
+	padding: 1em var(--layout-gutter);
 	grid-template-columns: minmax(0, 1fr) auto;
 	grid-template-areas: "brand nav";
 }
@@ -1886,6 +1913,9 @@ header {
 .nav-item {
 	display: inline-block;
 	margin-right: 1em;
+}
+.nav-item:last-child {
+	margin-right: 0;
 }
 .nav-item a[href]:not(:hover),
 .nav-item .nav-action-btn:not(:hover) {
