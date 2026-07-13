@@ -110,6 +110,16 @@ export function initFilterUI({
     sortOptions.addEventListener("change", (event) => {
       onSortChange(event.target.value);
     });
+
+    // Native <select> won't fire change when Random is already selected.
+    // Enter while focused re-rolls the shuffle.
+    sortOptions.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      if (sortOptions.value !== "random") return;
+      event.preventDefault();
+      onSortChange("random");
+    });
+
     sortListenerBound = true;
   }
 

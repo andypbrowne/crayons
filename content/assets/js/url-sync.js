@@ -74,7 +74,8 @@ export function readUrlState(validHexSet, nameHexMap) {
 export function writeUrlState(state, colorNameMap) {
   const params = new URLSearchParams();
 
-  if (state.sort && state.sort !== "default") {
+  // Random is session-only — don't put an unstable order in the share URL.
+  if (state.sort && state.sort !== "default" && state.sort !== "random") {
     params.set("sort", state.sort);
   }
 

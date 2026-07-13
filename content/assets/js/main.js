@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const applySort = createSorter(crayonList);
 
   function syncPage(state) {
-    applySort(state.sort);
+    applySort(state.sort, state.shuffleSeed);
     applyFilter(crayonList, getVisibleColors(state));
     writeUrlState(state, colorNameMap);
     updateShareMetaFromState(state, colorNameMap);
@@ -159,6 +159,10 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleButton: starterToggle,
     sortOptions,
     onSortChange(sort) {
+      if (sort === "random") {
+        setState({ sort: "random", shuffleSeed: getState().shuffleSeed + 1 });
+        return;
+      }
       setState({ sort });
     },
     onFilterChange(value) {

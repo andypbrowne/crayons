@@ -34,6 +34,26 @@ function compareHue(hexA, hexB) {
   return b.lightness - a.lightness;
 }
 
+function mulberry32(seed) {
+  let t = seed >>> 0;
+  return function next() {
+    t += 0x6d2b79f5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffleInPlace(items, seed) {
+  const random = mulberry32(seed || 1);
+  for (let i = items.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    const tmp = items[i];
+    items[i] = items[j];
+    items[j] = tmp;
+  }
+}
+
 export function createSorter(crayonList) {
   const originalOrder = Array.from(crayonList.children);
 
@@ -41,7 +61,7 @@ export function createSorter(crayonList) {
     return item.dataset.hex ?? item.querySelector("[data-hex]")?.dataset.hex ?? "";
   }
 
-  return function applySort(sortBy) {
+  return function applySort(sortBy, shuffleSeed = 0) {
     const crayons = Array.from(crayonList.children);
 
     if (sortBy === "default") {
@@ -49,7 +69,9 @@ export function createSorter(crayonList) {
       return;
     }
 
-    if (sortBy === "color") {
+    if (sortBy === "random") {
+      shuffleInPlace(crayons, shuffleSeed);
+    } else if (sortBy === "color") {
       crayons.sort((a, b) => getHex(a).localeCompare(getHex(b)));
     } else if (sortBy === "brightness") {
       crayons.sort((a, b) => brightness(getHex(a)) - brightness(getHex(b)));

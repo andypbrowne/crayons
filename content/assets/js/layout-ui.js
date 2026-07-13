@@ -45,9 +45,9 @@ function hashHex(hex) {
   return Math.abs(hash);
 }
 
-function seedPileVars(crayonList) {
+function seedPileVars(crayonList, seed = 0) {
   crayonList.querySelectorAll("li[data-hex]").forEach((item) => {
-    const hash = hashHex(item.dataset.hex);
+    const hash = hashHex(item.dataset.hex) ^ (seed >>> 0);
     const rotate = (hash % 141) - 70;
     const x = 14 + (hash % 720) / 10;
     const y = 16 + (Math.floor(hash / 9) % 680) / 10;
@@ -304,7 +304,7 @@ export function initLayoutUI({ crayonList, select }) {
     }, 120);
   });
 
-  function applyLayout(layout) {
+  function applyLayout(layout, state) {
     crayonList.dataset.layout = layout;
 
     if (layout === "arc") {
@@ -322,7 +322,8 @@ export function initLayoutUI({ crayonList, select }) {
     }
 
     if (layout === "pile") {
-      seedPileVars(crayonList);
+      const seed = state?.sort === "random" ? state.shuffleSeed : 0;
+      seedPileVars(crayonList, seed);
     } else {
       clearArcStyles(crayonList);
     }
@@ -335,7 +336,7 @@ export function initLayoutUI({ crayonList, select }) {
     if (select && select.value !== layout) {
       select.value = layout;
     }
-    applyLayout(layout);
+    applyLayout(layout, state);
   }
 
   return { update };

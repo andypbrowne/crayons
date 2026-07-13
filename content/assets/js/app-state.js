@@ -12,6 +12,7 @@ const SORT_VALUES = new Set([
   "brightness",
   "hue",
   "saturation",
+  "random",
 ]);
 
 export const LAYOUT_VALUES = new Set(["list", "grid", "arc", "pile"]);
@@ -19,6 +20,7 @@ export const LAYOUT_VALUES = new Set(["list", "grid", "arc", "pile"]);
 const state = {
   sort: "default",
   layout: "list",
+  shuffleSeed: 0,
   activeFilter: "all",
   sharedColors: null,
   userPalettes: [],
@@ -35,6 +37,7 @@ export function getState() {
   return {
     sort: state.sort,
     layout: state.layout,
+    shuffleSeed: state.shuffleSeed,
     activeFilter: state.activeFilter,
     sharedColors: state.sharedColors ? [...state.sharedColors] : null,
     userPalettes: state.userPalettes.map((palette) => ({
@@ -67,6 +70,9 @@ export function setState(partial) {
   }
   if (partial.layout !== undefined) {
     state.layout = LAYOUT_VALUES.has(partial.layout) ? partial.layout : "list";
+  }
+  if (partial.shuffleSeed !== undefined) {
+    state.shuffleSeed = partial.shuffleSeed;
   }
   if (partial.activeFilter !== undefined) {
     state.activeFilter = partial.activeFilter;
