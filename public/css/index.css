@@ -179,8 +179,27 @@ ol.crayons[data-layout="arc"] {
 	user-select: none;
 }
 
+ol.crayons[data-layout="arc"]:focus {
+	outline: 2px solid var(--filter-accent, #3b82f6);
+	outline-offset: 2px;
+}
+
+ol.crayons[data-layout="arc"]:focus:not(:focus-visible) {
+	outline: none;
+}
+
 ol.crayons[data-layout="arc"]:active {
 	cursor: grabbing;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	ol.crayons[data-layout="arc"] {
+		cursor: default;
+	}
+
+	ol.crayons[data-layout="arc"] li {
+		transition: none;
+	}
 }
 
 ol.crayons[data-layout="pile"] {

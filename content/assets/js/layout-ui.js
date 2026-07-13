@@ -5,6 +5,12 @@ const TWO_PI = Math.PI * 2;
 const ARC_GAP_PX = 6;
 const ARC_WHEEL_SCALE = 0.0022;
 const ARC_DRAG_SCALE = 0.005;
+const ARC_STAGE_LABEL =
+  "Crayon arc. Use left and right arrow keys or scroll to rotate.";
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 export const LAYOUT_OPTIONS = [
   { id: "list", label: "List" },
@@ -106,13 +112,27 @@ function createArcController(crayonList) {
     const stageWidth = crayonList.clientWidth || window.innerWidth;
     const stageHeight = crayonList.clientHeight || window.innerHeight * 0.7;
     const crayonHeight = readCrayonHeightPx(crayonList);
+    const crayonLength = crayonHeight * (1172 / 121);
     const spacing = crayonHeight + ARC_GAP_PX;
     const minRadius = Math.max(stageWidth * 0.55, stageHeight * 0.55);
     radius = Math.max(minRadius, (count * spacing) / TWO_PI);
 
-    // Center above the stage so the lower arc reads as a smile in view.
+    // Lowest crayon (butt at bottom of smile) sits near mid-stage.
+    // At θ=π/2 the crayon is radial, so ~half its length hangs below the arc.
+    const isCompact = stageWidth < 720 || stageHeight < 640;
+    const smileBottom = stageHeight * (isCompact ? 0.67 : 0.7);
     cx = stageWidth / 2;
-    cy = stageHeight * 0.88 - radius;
+    cy = smileBottom - radius - crayonLength * 0.45;
+  }
+
+  function stepAngle() {
+    const count = items.length || 1;
+    return TWO_PI / count;
+  }
+
+  function nudgeOffset(delta) {
+    offset += delta;
+    schedulePaint();
   }
 
   function paint() {
@@ -141,11 +161,38 @@ function createArcController(crayonList) {
 
   function onWheel(event) {
     event.preventDefault();
-    offset += event.deltaY * ARC_WHEEL_SCALE + event.deltaX * ARC_WHEEL_SCALE;
-    schedulePaint();
+    if (prefersReducedMotion()) {
+      const direction = event.deltaY + event.deltaX >= 0 ? 1 : -1;
+      nudgeOffset(direction * stepAngle());
+      return;
+    }
+    nudgeOffset(event.deltaY * ARC_WHEEL_SCALE + event.deltaX * ARC_WHEEL_SCALE);
+  }
+
+  function onKeyDown(event) {
+    if (event.target.closest("button, a, input, select, textarea, [popover]")) {
+      return;
+    }
+    if (
+      event.key !== "ArrowLeft" &&
+      event.key !== "ArrowRight" &&
+      event.key !== "ArrowUp" &&
+      event.key !== "ArrowDown"
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    const step = stepAngle();
+    if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      nudgeOffset(-step);
+    } else {
+      nudgeOffset(step);
+    }
   }
 
   function onPointerDown(event) {
+    if (prefersReducedMotion()) return;
     if (event.button !== undefined && event.button !== 0) return;
     if (event.target.closest("button, a, [popover], .row-actions-menu")) return;
     dragging = true;
@@ -157,8 +204,7 @@ function createArcController(crayonList) {
     if (!dragging) return;
     const dx = event.clientX - lastPointerX;
     lastPointerX = event.clientX;
-    offset += dx * ARC_DRAG_SCALE;
-    schedulePaint();
+    nudgeOffset(dx * ARC_DRAG_SCALE);
   }
 
   function onPointerUp(event) {
@@ -174,7 +220,10 @@ function createArcController(crayonList) {
   function bind() {
     if (bound) return;
     bound = true;
+    crayonList.tabIndex = 0;
+    crayonList.setAttribute("aria-label", ARC_STAGE_LABEL);
     crayonList.addEventListener("wheel", onWheel, { passive: false });
+    crayonList.addEventListener("keydown", onKeyDown);
     crayonList.addEventListener("pointerdown", onPointerDown);
     crayonList.addEventListener("pointermove", onPointerMove);
     crayonList.addEventListener("pointerup", onPointerUp);
@@ -185,7 +234,10 @@ function createArcController(crayonList) {
     if (!bound) return;
     bound = false;
     dragging = false;
+    crayonList.removeAttribute("tabindex");
+    crayonList.removeAttribute("aria-label");
     crayonList.removeEventListener("wheel", onWheel);
+    crayonList.removeEventListener("keydown", onKeyDown);
     crayonList.removeEventListener("pointerdown", onPointerDown);
     crayonList.removeEventListener("pointermove", onPointerMove);
     crayonList.removeEventListener("pointerup", onPointerUp);
