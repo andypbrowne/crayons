@@ -10,7 +10,7 @@
 /* Theme colors */
 :root {
 	--color-gray-20: #e0e0e0;
-	--color-gray-50: #C0C0C0;
+	--color-gray-50: #828282;
 	--color-gray-90: #333;
 
 	--background-color: #fff;
@@ -171,17 +171,16 @@ ol.crayons[data-layout="pile"] {
 }
 
 ol.crayons[data-layout="arc"] {
-	height: var(--arc-stage-height, 22rem);
-	overflow-x: auto;
-	overflow-y: hidden;
-	touch-action: pan-x;
+	height: calc(100dvh - var(--header-height) - 2 * var(--layout-gutter));
+	min-height: 22rem;
+	overflow: hidden;
+	touch-action: none;
+	cursor: grab;
+	user-select: none;
 }
 
-ol.crayons[data-layout="arc"]::before {
-	content: "";
-	display: block;
-	width: var(--arc-stage-width, 100%);
-	height: 1px;
+ol.crayons[data-layout="arc"]:active {
+	cursor: grabbing;
 }
 
 ol.crayons[data-layout="pile"] {
@@ -205,8 +204,13 @@ ol.crayons[data-layout="pile"] li {
 ol.crayons[data-layout="arc"] li {
 	left: var(--arc-x, 0);
 	top: var(--arc-y, 0);
-	transform: rotate(var(--arc-rotate, 0deg));
+	transform: translate(-50%, -50%) rotate(var(--arc-rotate, 0deg));
 	transform-origin: center center;
+}
+
+ol.crayons[data-layout="arc"] li:hover,
+ol.crayons[data-layout="arc"] li:focus-within {
+	z-index: 200;
 }
 
 ol.crayons[data-layout="pile"] li {
@@ -231,6 +235,7 @@ ol.crayons[data-layout="pile"] .row-actions-btn {
 }
 
 @media (max-width: 48em) {
+	ol.crayons[data-layout="arc"],
 	ol.crayons[data-layout="pile"] {
 		min-height: calc(100dvh - var(--header-height) - 6rem);
 		height: calc(100dvh - var(--header-height) - 6rem);
