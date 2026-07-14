@@ -2134,3 +2134,62 @@ h2 + .header-anchor {
     position-area: bottom;
   }
 }
+
+/* View Transitions: crayon layout / sort morphs */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation: none;
+}
+
+::view-transition-group(*) {
+	animation-duration: 0.38s;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-vt-motion="sort"] ::view-transition-group(*) {
+	animation-duration: 0.38s;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-vt-motion="shuffle"] ::view-transition-group(*) {
+	animation-duration: 0.42s;
+	animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html[data-vt-motion="list-grid"] ::view-transition-group(*) {
+	animation-duration: 0.36s;
+	animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+html[data-vt-motion="arc-in"] ::view-transition-group(*) {
+	animation-duration: 0.48s;
+	animation-timing-function: cubic-bezier(0.33, 1.15, 0.36, 1);
+}
+
+html[data-vt-motion="arc-out"] ::view-transition-group(*) {
+	animation-duration: 0.4s;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-vt-motion="pile-in"] ::view-transition-group(*) {
+	animation-duration: 0.52s;
+	animation-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+html[data-vt-motion="pile-out"] ::view-transition-group(*) {
+	animation-duration: 0.4s;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-vt-motion="arc-pile"] ::view-transition-group(*) {
+	animation-duration: 0.5s;
+	animation-timing-function: cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
+}

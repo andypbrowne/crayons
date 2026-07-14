@@ -24,6 +24,10 @@ import { initPanelChrome } from "./panel-chrome.js";
 import { initPanelRegistry } from "./panel-registry.js";
 import { initPanelMenu } from "./panel-menu.js";
 import { initLayoutUI, loadSavedLayout } from "./layout-ui.js";
+import {
+  resolveMotionPreset,
+  runCrayonTransition,
+} from "./view-transitions.js";
 
 function resolveInitialFilter(urlState, userPalettes) {
   if (urlState.sharedColors?.length) {
@@ -204,16 +208,64 @@ document.addEventListener("DOMContentLoaded", () => {
   rowMenus.updateMenus(state);
   layoutUi.update(state);
 
-  subscribe((state) => {
-    syncPage(state);
-    filterUi.update(state);
-    browseFiltersUi.update(state);
-    themeFilterUi.update(state);
-    paletteManager.update(state);
-    rowMenus.updateMenus(state);
-    layoutUi.update(state);
+  let prevMotion = {
+    sort: state.sort,
+    shuffleSeed: state.shuffleSeed,
+    layout: state.layout,
+  };
+  let readyForMotion = false;
+
+  function updateChrome(nextState) {
+    filterUi.update(nextState);
+    browseFiltersUi.update(nextState);
+    themeFilterUi.update(nextState);
+    paletteManager.update(nextState);
+    rowMenus.updateMenus(nextState);
+  }
+
+  function applyCrayonState(nextState) {
+    syncPage(nextState);
+    layoutUi.update(nextState);
+  }
+
+  subscribe((nextState) => {
+    const sortChanged = nextState.sort !== prevMotion.sort;
+    const shuffleChanged = nextState.shuffleSeed !== prevMotion.shuffleSeed;
+    const layoutChanged = nextState.layout !== prevMotion.layout;
+    const shouldAnimate =
+      readyForMotion && (sortChanged || shuffleChanged || layoutChanged);
+
+    const fromLayout = prevMotion.layout;
+    const toLayout = nextState.layout;
+
+    prevMotion = {
+      sort: nextState.sort,
+      shuffleSeed: nextState.shuffleSeed,
+      layout: nextState.layout,
+    };
+
+    updateChrome(nextState);
+
+    if (!shouldAnimate) {
+      applyCrayonState(nextState);
+      return;
+    }
+
+    const preset = resolveMotionPreset({
+      fromLayout,
+      toLayout,
+      sortChanged,
+      shuffleChanged,
+    });
+
+    runCrayonTransition(crayonList, {
+      preset,
+      layoutAfter: toLayout,
+      updateFn: () => applyCrayonState(nextState),
+    });
   });
 
   syncPage(state);
   layoutUi.update(getState());
+  readyForMotion = true;
 });
