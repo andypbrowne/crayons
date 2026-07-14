@@ -5,6 +5,8 @@
 	--header-height: 4rem;
 	--layout-gutter: 1rem;
 	--content-offset-top: calc(var(--header-height) + var(--layout-gutter));
+	--chrome-z: 1100;
+	--vt-z: 100;
 }
 
 /* Theme colors */
@@ -481,7 +483,7 @@ header {
 	font-size: 0.8125rem;
 	position: sticky;
 	top: 0;
-	z-index: 1100;
+	z-index: var(--chrome-z);
 	background-color: transparent;
 }
 
@@ -1135,7 +1137,7 @@ ol.crayons .row-actions-btn.kebab-btn {
 		gap: 0;
 		position: sticky;
 		top: 0;
-		z-index: 1100;
+		z-index: var(--chrome-z);
 		max-height: 100dvh;
 		width: calc(100% + 2 * var(--layout-gutter));
 		--panel-toggle-bar-height: 3.25rem;
@@ -1631,7 +1633,7 @@ ol.crayons li button.row-actions-btn {
 	.has-filter-actions header {
 		position: sticky;
 		top: 0;
-		z-index: 1100;
+		z-index: var(--chrome-z);
 		grid-template-columns: minmax(0, 1fr) auto;
 		grid-template-areas:
 			"brand nav"
@@ -1693,7 +1695,7 @@ ol.crayons li button.row-actions-btn {
 		position: fixed;
 		width: 100%;
 		top: 0;
-		z-index: 1100;
+		z-index: var(--chrome-z);
 		height: var(--header-height);
 		grid-template-areas: "brand nav";
 		background-color: var(--surface-glass, rgba(255, 255, 255, 0.8));
@@ -1714,7 +1716,7 @@ ol.crayons li button.row-actions-btn {
 		top: var(--content-offset-top);
 		left: var(--layout-gutter);
 		width: min(410px, calc(100vw - 2 * var(--layout-gutter)));
-		z-index: 1100;
+		z-index: var(--chrome-z);
 	}
 
 	.panels-dock-column {
@@ -2148,6 +2150,12 @@ h2 + .header-anchor {
 }
 
 /* View Transitions: crayon layout / sort morphs */
+
+/* Keep morph snapshots under sticky/fixed chrome (header + panels). */
+::view-transition {
+	z-index: var(--vt-z);
+	pointer-events: none;
+}
 
 /* Element-only morphs: exclude the document root from the snapshot tree so
    we don't get a frozen full-page overlay when group captures are heavy. */
