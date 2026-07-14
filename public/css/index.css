@@ -187,6 +187,9 @@ ol.crayons[data-layout="pile"] {
 	position: relative;
 	width: 100%;
 	max-width: none;
+	/* Stack below header/panels without isolation — isolate can clip overflow. */
+	z-index: 0;
+	overflow: visible;
 }
 
 ol.crayons[data-layout="arc"] {
@@ -277,6 +280,12 @@ ol.crayons[data-layout="pile"] .row-actions-btn {
 	ol.crayons[data-layout="pile"] {
 		min-height: calc(100dvh - var(--header-height) - 6rem);
 		height: calc(100dvh - var(--header-height) - 6rem);
+	}
+
+	.has-filter-actions ol.crayons[data-layout="arc"],
+	.has-filter-actions ol.crayons[data-layout="pile"] {
+		height: 100dvh;
+		min-height: 100dvh;
 	}
 }
 
@@ -372,6 +381,8 @@ main :first-child {
 
 /* Shared page gutter: header, main, and panel chrome all align to this */
 .has-filter-actions main {
+	position: relative;
+	min-height: 100dvh;
 	padding-inline: var(--layout-gutter);
 	overflow: visible;
 }
@@ -384,11 +395,20 @@ main :first-child {
 	box-sizing: border-box;
 }
 
-/* Arc / pile can use the full viewport width under the gutters */
+/* Arc / pile fill the viewport (including under the frosted header).
+   Absolute positioning avoids clip-at-header from in-flow stage tops.
+   Arc keeps overflow:hidden for the smile; the clip box is the viewport. */
 .has-filter-actions ol.crayons[data-layout="arc"],
 .has-filter-actions ol.crayons[data-layout="pile"] {
-	margin-inline: calc(-1 * var(--layout-gutter));
+	position: absolute;
+	left: calc(-1 * var(--layout-gutter));
 	width: calc(100% + 2 * var(--layout-gutter));
+	top: 0;
+	margin: 0;
+	box-sizing: border-box;
+	height: 100dvh;
+	min-height: 100dvh;
+	z-index: 0;
 }
 
 header {
@@ -449,7 +469,7 @@ header {
 	font-size: 0.8125rem;
 	position: sticky;
 	top: 0;
-	z-index: 1000;
+	z-index: 1100;
 	background-color: transparent;
 }
 
@@ -1050,6 +1070,14 @@ ol.crayons .row-actions-btn.kebab-btn {
 		--header-height: 6.75rem;
 	}
 
+	.has-filter-actions ol.crayons[data-layout="arc"],
+	.has-filter-actions ol.crayons[data-layout="pile"] {
+		/* Main starts below the in-flow header; reach back under it */
+		top: calc(-1 * var(--header-height));
+		height: calc(100dvh);
+		min-height: calc(100dvh);
+	}
+
 	.has-filter-actions header {
 		grid-template-columns: minmax(0, 1fr) auto;
 		grid-template-areas:
@@ -1095,7 +1123,7 @@ ol.crayons .row-actions-btn.kebab-btn {
 		gap: 0;
 		position: sticky;
 		top: 0;
-		z-index: 1000;
+		z-index: 1100;
 		max-height: 100dvh;
 		width: calc(100% + 2 * var(--layout-gutter));
 		--panel-toggle-bar-height: 3.25rem;
@@ -1589,12 +1617,18 @@ ol.crayons li button.row-actions-btn {
 	}
 
 	.has-filter-actions header {
+		position: sticky;
+		top: 0;
+		z-index: 1100;
 		grid-template-columns: minmax(0, 1fr) auto;
 		grid-template-areas:
 			"brand nav"
 			"actions actions";
 		row-gap: 0.5rem;
 		column-gap: 0.75rem;
+		background-color: var(--surface-glass, rgba(255, 255, 255, 0.8));
+		backdrop-filter: var(--surface-glass-blur, blur(10px));
+		-webkit-backdrop-filter: var(--surface-glass-blur, blur(10px));
 	}
 
 	.header-nav {
@@ -1647,7 +1681,7 @@ ol.crayons li button.row-actions-btn {
 		position: fixed;
 		width: 100%;
 		top: 0;
-		z-index: 1000;
+		z-index: 1100;
 		height: var(--header-height);
 		grid-template-areas: "brand nav";
 		background-color: var(--surface-glass, rgba(255, 255, 255, 0.8));
@@ -1668,7 +1702,7 @@ ol.crayons li button.row-actions-btn {
 		top: var(--content-offset-top);
 		left: var(--layout-gutter);
 		width: min(410px, calc(100vw - 2 * var(--layout-gutter)));
-		z-index: 1000;
+		z-index: 1100;
 	}
 
 	.panels-dock-column {
