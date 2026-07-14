@@ -1,5 +1,8 @@
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
+/** Soft cap so VT stays smooth with ~120 crayons. */
+const MAX_NAMED_CRAYONS = 48;
+
 const MOTION = {
   sort: { maxStaggerMs: 160 },
   shuffle: { maxStaggerMs: 200 },
@@ -60,6 +63,40 @@ function getVisibleCrayons(crayonList) {
   return Array.from(crayonList.children).filter(
     (item) => item.matches("li[data-hex]") && !item.hidden,
   );
+}
+
+/**
+ * Prefer in-viewport crayons nearest the screen center so morph cost stays bounded.
+ * Unnamed crayons still update — they just snap instead of morphing.
+ */
+function pickNamedCrayons(items, limit = MAX_NAMED_CRAYONS) {
+  if (items.length <= limit) return items;
+
+  const viewportW = window.innerWidth || 1;
+  const viewportH = window.innerHeight || 1;
+  const centerX = viewportW / 2;
+  const centerY = viewportH / 2;
+
+  const scored = items.map((item, index) => {
+    const rect = item.getBoundingClientRect();
+    const midX = rect.left + rect.width / 2;
+    const midY = rect.top + rect.height / 2;
+    const inView =
+      rect.bottom > 0 &&
+      rect.top < viewportH &&
+      rect.right > 0 &&
+      rect.left < viewportW;
+    const dist = Math.hypot(midX - centerX, midY - centerY);
+    return { item, index, inView, dist };
+  });
+
+  scored.sort((a, b) => {
+    if (a.inView !== b.inView) return a.inView ? -1 : 1;
+    if (a.dist !== b.dist) return a.dist - b.dist;
+    return a.index - b.index;
+  });
+
+  return scored.slice(0, limit).map((entry) => entry.item);
 }
 
 function cssEscapeIdent(value) {
@@ -159,12 +196,10 @@ function assignTransitionNames(items) {
 
 function clearTransitionNames(items) {
   items.forEach((item) => {
-    // Set to none first so the UA drops capture state, then remove.
     item.style.viewTransitionName = "none";
   });
   items.forEach((item) => {
     item.style.removeProperty("view-transition-name");
-    // VT temporarily hides live named elements; ensure that doesn't stick.
     item.style.removeProperty("visibility");
     item.style.removeProperty("opacity");
   });
@@ -172,18 +207,13 @@ function clearTransitionNames(items) {
 
 function restoreCrayonPaint(crayonList) {
   crayonList.querySelectorAll("li[data-hex]").forEach((item) => {
-    // VT temporarily hides live named elements via visibility; ensure it
-    // does not stick after the transition tears down.
     item.style.removeProperty("visibility");
     item.style.removeProperty("opacity");
   });
-  // Nudge layout/paint after VT teardown (content-visibility can lag).
   flushLayout(crayonList);
 }
 
 function flushLayout(crayonList) {
-  // Force style/layout flush without awaiting rAF (rAF deadlocks while VT
-  // suppresses rendering inside the update callback).
   void crayonList.offsetHeight;
 }
 
@@ -197,7 +227,7 @@ function cleanupVtArtifacts(crayonList) {
   document.querySelectorAll("style[data-crayon-vt-stagger]").forEach((el) => {
     el.remove();
   });
-  document.documentElement.classList.remove("is-crayon-vt");
+  document.documentElement.classList.remove("is-crayon-vt", "is-crayon-vt-settling");
   delete document.documentElement.dataset.vtMotion;
   if (crayonList) restoreCrayonPaint(crayonList);
 }
@@ -229,14 +259,16 @@ export async function runCrayonTransition(
       // ignore
     }
     activeTransition = null;
-    cleanupVtArtifacts();
+    cleanupVtArtifacts(crayonList);
   }
 
   const beforeVisible = getVisibleCrayons(crayonList);
-  const named = assignTransitionNames(beforeVisible);
+  const named = assignTransitionNames(pickNamedCrayons(beforeVisible));
+  const namedSet = new Set(named);
   const root = document.documentElement;
   root.dataset.vtMotion = preset;
   root.classList.add("is-crayon-vt");
+  root.classList.remove("is-crayon-vt-settling");
 
   let staggerStyle = null;
   let pendingDelays = null;
@@ -247,23 +279,16 @@ export async function runCrayonTransition(
       updateFn();
       flushLayout(crayonList);
 
-      const afterVisible = getVisibleCrayons(crayonList);
-      afterVisible.forEach((item) => {
-        const name = vtNameFor(item);
-        if (!name) return;
-        if (!item.style.viewTransitionName) {
-          item.style.viewTransitionName = name;
-          named.push(item);
-        }
-      });
-
-      pendingDelays = buildStaggerDelays(afterVisible, preset, layoutAfter);
+      // Only stagger the crayons we already named (capped set).
+      const stillNamed = getVisibleCrayons(crayonList).filter((item) =>
+        namedSet.has(item),
+      );
+      pendingDelays = buildStaggerDelays(stillNamed, preset, layoutAfter);
       flushLayout(crayonList);
     });
 
     activeTransition = transition;
 
-    // Apply stagger once the transition is ready to animate (safe again).
     transition.ready
       .then(() => {
         if (pendingDelays) {
@@ -283,10 +308,14 @@ export async function runCrayonTransition(
     staggerStyle?.remove();
     root.classList.remove("is-crayon-vt");
     delete root.dataset.vtMotion;
+    // Hold content-visibility: visible one extra frame so list rows don't blank.
+    root.classList.add("is-crayon-vt-settling");
     restoreCrayonPaint(crayonList);
-    // One frame later: content-visibility recalculates against final layout.
     requestAnimationFrame(() => {
       restoreCrayonPaint(crayonList);
+      requestAnimationFrame(() => {
+        root.classList.remove("is-crayon-vt-settling");
+      });
     });
   }
 }
