@@ -2136,6 +2136,18 @@ h2 + .header-anchor {
 }
 
 /* View Transitions: crayon layout / sort morphs */
+
+/* Element-only morphs: exclude the document root from the snapshot tree so
+   we don't get a frozen full-page overlay when group captures are heavy. */
+html.is-crayon-vt {
+	view-transition-name: none;
+}
+
+html.is-crayon-vt ol.crayons li {
+	/* content-visibility: auto breaks VT snapshots for offscreen rows */
+	content-visibility: visible;
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
 	animation: none;

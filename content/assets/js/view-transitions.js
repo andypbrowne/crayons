@@ -70,7 +70,6 @@ function cssEscapeIdent(value) {
 }
 
 function vtNameFor(item) {
-  // Prefer stable id; fall back to a hex-derived custom-ident.
   if (item.id) return item.id;
   const hex = (item.dataset.hex || "").replace(/^#/, "").toLowerCase();
   return hex ? `crayon-${hex}` : "";
@@ -85,9 +84,6 @@ function hashHex(hex) {
   return Math.abs(hash);
 }
 
-/**
- * Rank visible crayons for stagger order based on the preset / layout.
- */
 function rankForStagger(items, preset, layout) {
   const ranked = items.map((item, index) => ({ item, index }));
 
@@ -110,7 +106,6 @@ function rankForStagger(items, preset, layout) {
     return ranked.map((entry) => entry.item);
   }
 
-  // Default: destination DOM / reading order.
   return items;
 }
 
@@ -169,10 +164,22 @@ function clearTransitionNames(items) {
   });
 }
 
-function waitFrame() {
-  return new Promise((resolve) => {
-    requestAnimationFrame(() => resolve());
+function flushLayout(crayonList) {
+  // Force style/layout flush without awaiting rAF (rAF deadlocks while VT
+  // suppresses rendering inside the update callback).
+  void crayonList.offsetHeight;
+}
+
+function cleanupVtArtifacts() {
+  document.querySelectorAll("li[data-hex]").forEach((item) => {
+    item.style.viewTransitionName = "";
+    item.style.removeProperty("view-transition-name");
   });
+  document.querySelectorAll("style[data-crayon-vt-stagger]").forEach((el) => {
+    el.remove();
+  });
+  document.documentElement.classList.remove("is-crayon-vt");
+  delete document.documentElement.dataset.vtMotion;
 }
 
 let activeTransition = null;
@@ -195,7 +202,6 @@ export async function runCrayonTransition(
     return;
   }
 
-  // If a morph is in flight, skip it so this update can start cleanly.
   if (activeTransition) {
     try {
       activeTransition.skipTransition();
@@ -203,34 +209,25 @@ export async function runCrayonTransition(
       // ignore
     }
     activeTransition = null;
-    // Drop any leftover names/stagger from the aborted run.
-    document.querySelectorAll("li[data-hex]").forEach((item) => {
-      item.style.viewTransitionName = "";
-      item.style.removeProperty("view-transition-name");
-    });
-    document.querySelectorAll("style[data-crayon-vt-stagger]").forEach((el) => {
-      el.remove();
-    });
-    delete document.documentElement.dataset.vtMotion;
+    cleanupVtArtifacts();
   }
 
   const beforeVisible = getVisibleCrayons(crayonList);
   const named = assignTransitionNames(beforeVisible);
   const root = document.documentElement;
   root.dataset.vtMotion = preset;
+  root.classList.add("is-crayon-vt");
 
   let staggerStyle = null;
+  let pendingDelays = null;
 
   try {
-    const transition = document.startViewTransition(async () => {
-      await updateFn();
-      // Let arc/pile geometry CSS vars settle before the after-snapshot.
-      if (layoutAfter === "arc" || layoutAfter === "pile") {
-        await waitFrame();
-      }
+    // Keep the update callback synchronous — never await rAF here.
+    const transition = document.startViewTransition(() => {
+      updateFn();
+      flushLayout(crayonList);
 
       const afterVisible = getVisibleCrayons(crayonList);
-      // Ensure newly visible items are also named for the morph.
       afterVisible.forEach((item) => {
         const name = vtNameFor(item);
         if (!name) return;
@@ -240,12 +237,23 @@ export async function runCrayonTransition(
         }
       });
 
-      staggerStyle = applyStaggerStylesheet(
-        buildStaggerDelays(afterVisible, preset, layoutAfter),
-      );
+      pendingDelays = buildStaggerDelays(afterVisible, preset, layoutAfter);
+      flushLayout(crayonList);
     });
 
     activeTransition = transition;
+
+    // Apply stagger once the transition is ready to animate (safe again).
+    transition.ready
+      .then(() => {
+        if (pendingDelays) {
+          staggerStyle = applyStaggerStylesheet(pendingDelays);
+        }
+      })
+      .catch(() => {
+        // ready rejects when the transition is skipped.
+      });
+
     await transition.finished;
   } catch {
     // Abort / unsupported mid-flight — update already applied.
@@ -253,6 +261,7 @@ export async function runCrayonTransition(
     activeTransition = null;
     clearTransitionNames(named);
     staggerStyle?.remove();
+    root.classList.remove("is-crayon-vt");
     delete root.dataset.vtMotion;
   }
 }
