@@ -158,6 +158,18 @@ ol.crayons li[hidden] {
 	display: none !important;
 }
 
+/* Flow layouts: exit freeform absolute/transform and keep rows paintable.
+   content-visibility: auto was leaving rows blank after pile/arc → list VT. */
+ol.crayons[data-layout="list"] li,
+ol.crayons[data-layout="grid"] li {
+	position: relative;
+	left: auto;
+	top: auto;
+	transform: none;
+	z-index: auto;
+	content-visibility: visible;
+}
+
 ol.crayons li > button {
 	padding: .5em 1.2em;
 	/* max-width: 90px; */
@@ -2144,8 +2156,8 @@ html.is-crayon-vt {
 }
 
 html.is-crayon-vt ol.crayons li {
-	/* content-visibility: auto breaks VT snapshots for offscreen rows */
-	content-visibility: visible;
+	/* Force paint during capture; pairs with list/grid visible rule above */
+	content-visibility: visible !important;
 }
 
 ::view-transition-old(root),

@@ -86,6 +86,20 @@ function clearArcStyles(crayonList) {
   });
 }
 
+function clearPileVars(crayonList) {
+  crayonList.querySelectorAll("li[data-hex]").forEach((item) => {
+    item.style.removeProperty("--pile-rotate");
+    item.style.removeProperty("--pile-x");
+    item.style.removeProperty("--pile-y");
+    item.style.removeProperty("--pile-z");
+  });
+}
+
+function clearFreeformStyles(crayonList) {
+  clearArcStyles(crayonList);
+  clearPileVars(crayonList);
+}
+
 /**
  * Smile fan: crayons on a full circle, stage clips to the lower arc.
  * Wheel/drag updates a shared offset; paint is rAF-throttled.
@@ -326,7 +340,7 @@ export function initLayoutUI({ crayonList, select }) {
       const seed = state?.sort === "random" ? state.shuffleSeed : 0;
       seedPileVars(crayonList, seed);
     } else {
-      clearArcStyles(crayonList);
+      clearFreeformStyles(crayonList);
     }
 
     activeLayout = layout;

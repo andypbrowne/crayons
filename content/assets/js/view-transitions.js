@@ -159,9 +159,26 @@ function assignTransitionNames(items) {
 
 function clearTransitionNames(items) {
   items.forEach((item) => {
-    item.style.viewTransitionName = "";
-    item.style.removeProperty("view-transition-name");
+    // Set to none first so the UA drops capture state, then remove.
+    item.style.viewTransitionName = "none";
   });
+  items.forEach((item) => {
+    item.style.removeProperty("view-transition-name");
+    // VT temporarily hides live named elements; ensure that doesn't stick.
+    item.style.removeProperty("visibility");
+    item.style.removeProperty("opacity");
+  });
+}
+
+function restoreCrayonPaint(crayonList) {
+  crayonList.querySelectorAll("li[data-hex]").forEach((item) => {
+    // VT temporarily hides live named elements via visibility; ensure it
+    // does not stick after the transition tears down.
+    item.style.removeProperty("visibility");
+    item.style.removeProperty("opacity");
+  });
+  // Nudge layout/paint after VT teardown (content-visibility can lag).
+  flushLayout(crayonList);
 }
 
 function flushLayout(crayonList) {
@@ -170,16 +187,19 @@ function flushLayout(crayonList) {
   void crayonList.offsetHeight;
 }
 
-function cleanupVtArtifacts() {
+function cleanupVtArtifacts(crayonList) {
   document.querySelectorAll("li[data-hex]").forEach((item) => {
-    item.style.viewTransitionName = "";
+    item.style.viewTransitionName = "none";
     item.style.removeProperty("view-transition-name");
+    item.style.removeProperty("visibility");
+    item.style.removeProperty("opacity");
   });
   document.querySelectorAll("style[data-crayon-vt-stagger]").forEach((el) => {
     el.remove();
   });
   document.documentElement.classList.remove("is-crayon-vt");
   delete document.documentElement.dataset.vtMotion;
+  if (crayonList) restoreCrayonPaint(crayonList);
 }
 
 let activeTransition = null;
@@ -263,5 +283,10 @@ export async function runCrayonTransition(
     staggerStyle?.remove();
     root.classList.remove("is-crayon-vt");
     delete root.dataset.vtMotion;
+    restoreCrayonPaint(crayonList);
+    // One frame later: content-visibility recalculates against final layout.
+    requestAnimationFrame(() => {
+      restoreCrayonPaint(crayonList);
+    });
   }
 }
