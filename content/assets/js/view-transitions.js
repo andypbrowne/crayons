@@ -263,12 +263,13 @@ export async function runCrayonTransition(
   }
 
   const beforeVisible = getVisibleCrayons(crayonList);
-  const named = assignTransitionNames(pickNamedCrayons(beforeVisible));
-  const namedSet = new Set(named);
   const root = document.documentElement;
+  // Name chrome (via CSS) before crayons so named crayons never paint above it.
   root.dataset.vtMotion = preset;
   root.classList.add("is-crayon-vt");
   root.classList.remove("is-crayon-vt-settling");
+  const named = assignTransitionNames(pickNamedCrayons(beforeVisible));
+  const namedSet = new Set(named);
 
   let staggerStyle = null;
   let pendingDelays = null;

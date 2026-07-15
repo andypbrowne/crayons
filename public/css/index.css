@@ -2163,6 +2163,42 @@ html.is-crayon-vt {
 	view-transition-name: none;
 }
 
+/* Chrome must participate in the VT paint order — unnamed fixed/sticky
+   layers sit behind named crayon groups for the whole animation. */
+html.is-crayon-vt header,
+html.is-crayon-vt-settling header {
+	view-transition-name: site-header;
+}
+
+html.is-crayon-vt .panels-sidebar,
+html.is-crayon-vt-settling .panels-sidebar {
+	view-transition-name: site-panels;
+}
+
+/* Mobile sidebar is display:contents; capture the sticky dock instead. */
+@media (max-width: 999px) {
+	html.is-crayon-vt .panels-sidebar,
+	html.is-crayon-vt-settling .panels-sidebar {
+		view-transition-name: none;
+	}
+
+	html.is-crayon-vt .panels-dock-column,
+	html.is-crayon-vt-settling .panels-dock-column {
+		view-transition-name: site-panels;
+	}
+}
+
+/* Undocked panels leave the sidebar snapshot — name them so they stay on top. */
+html.is-crayon-vt #filters-panel.is-floating,
+html.is-crayon-vt-settling #filters-panel.is-floating {
+	view-transition-name: panel-filters;
+}
+
+html.is-crayon-vt #palettes-panel.is-floating,
+html.is-crayon-vt-settling #palettes-panel.is-floating {
+	view-transition-name: panel-palettes;
+}
+
 html.is-crayon-vt ol.crayons li,
 html.is-crayon-vt-settling ol.crayons li {
 	/* Force paint during capture + one-frame settle after teardown */
@@ -2175,6 +2211,7 @@ html.is-crayon-vt-settling ol.crayons li {
 }
 
 ::view-transition-group(*) {
+	z-index: 1;
 	animation-duration: 0.38s;
 	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -2217,6 +2254,26 @@ html[data-vt-motion="pile-out"] ::view-transition-group(*) {
 html[data-vt-motion="arc-pile"] ::view-transition-group(*) {
 	animation-duration: 0.5s;
 	animation-timing-function: cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+/* After motion presets so chrome stays above crayons and does not morph. */
+::view-transition-group(site-header),
+::view-transition-group(site-panels),
+::view-transition-group(panel-filters),
+::view-transition-group(panel-palettes) {
+	z-index: var(--chrome-z);
+	animation: none;
+}
+
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(site-panels),
+::view-transition-new(site-panels),
+::view-transition-old(panel-filters),
+::view-transition-new(panel-filters),
+::view-transition-old(panel-palettes),
+::view-transition-new(panel-palettes) {
+	animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
