@@ -1,8 +1,5 @@
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-/** Soft cap so VT stays smooth with ~120 crayons. */
-const MAX_NAMED_CRAYONS = 48;
-
 const MOTION = {
   sort: { maxStaggerMs: 160 },
   shuffle: { maxStaggerMs: 200 },
@@ -63,40 +60,6 @@ function getVisibleCrayons(crayonList) {
   return Array.from(crayonList.children).filter(
     (item) => item.matches("li[data-hex]") && !item.hidden,
   );
-}
-
-/**
- * Prefer in-viewport crayons nearest the screen center so morph cost stays bounded.
- * Unnamed crayons still update — they just snap instead of morphing.
- */
-function pickNamedCrayons(items, limit = MAX_NAMED_CRAYONS) {
-  if (items.length <= limit) return items;
-
-  const viewportW = window.innerWidth || 1;
-  const viewportH = window.innerHeight || 1;
-  const centerX = viewportW / 2;
-  const centerY = viewportH / 2;
-
-  const scored = items.map((item, index) => {
-    const rect = item.getBoundingClientRect();
-    const midX = rect.left + rect.width / 2;
-    const midY = rect.top + rect.height / 2;
-    const inView =
-      rect.bottom > 0 &&
-      rect.top < viewportH &&
-      rect.right > 0 &&
-      rect.left < viewportW;
-    const dist = Math.hypot(midX - centerX, midY - centerY);
-    return { item, index, inView, dist };
-  });
-
-  scored.sort((a, b) => {
-    if (a.inView !== b.inView) return a.inView ? -1 : 1;
-    if (a.dist !== b.dist) return a.dist - b.dist;
-    return a.index - b.index;
-  });
-
-  return scored.slice(0, limit).map((entry) => entry.item);
 }
 
 function cssEscapeIdent(value) {
@@ -268,8 +231,7 @@ export async function runCrayonTransition(
   root.dataset.vtMotion = preset;
   root.classList.add("is-crayon-vt");
   root.classList.remove("is-crayon-vt-settling");
-  const named = assignTransitionNames(pickNamedCrayons(beforeVisible));
-  const namedSet = new Set(named);
+  const named = assignTransitionNames(beforeVisible);
 
   let staggerStyle = null;
   let pendingDelays = null;
@@ -280,11 +242,17 @@ export async function runCrayonTransition(
       updateFn();
       flushLayout(crayonList);
 
-      // Only stagger the crayons we already named (capped set).
-      const stillNamed = getVisibleCrayons(crayonList).filter((item) =>
-        namedSet.has(item),
-      );
-      pendingDelays = buildStaggerDelays(stillNamed, preset, layoutAfter);
+      const afterVisible = getVisibleCrayons(crayonList);
+      afterVisible.forEach((item) => {
+        const name = vtNameFor(item);
+        if (!name) return;
+        if (!item.style.viewTransitionName) {
+          item.style.viewTransitionName = name;
+          named.push(item);
+        }
+      });
+
+      pendingDelays = buildStaggerDelays(afterVisible, preset, layoutAfter);
       flushLayout(crayonList);
     });
 
