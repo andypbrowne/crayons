@@ -39,7 +39,6 @@ export function initRowMenus({ crayonList, paletteManager }) {
           showToast(result.error);
           return;
         }
-        showToast(`Added to "${result.palette.name}".`);
         menu?.hidePopover?.();
         return;
       }

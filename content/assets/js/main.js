@@ -13,6 +13,7 @@ import { initThemeFilterUI } from "./theme-filter-ui.js";
 import { buildFamilyIndex } from "./color-family.js";
 import { buildThemeIndex } from "./color-theme.js";
 import { initPaletteManager } from "./palette-manager.js";
+import { initPaletteBuildToast } from "./palette-build-toast.js";
 import { initRowMenus } from "./row-menu.js";
 import { createSorter } from "./sort.js";
 import { loadUserPalettes } from "./user-palettes.js";
@@ -135,6 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function syncPage(state) {
     applySort(state.sort, state.shuffleSeed);
     applyFilter(crayonList, getVisibleColors(state));
+    paletteBuildToast.update(state);
     writeUrlState(state, colorNameMap);
     updateShareMetaFromState(state, colorNameMap);
   }
@@ -197,6 +199,8 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     onPalettesChange() {},
   });
+
+  const paletteBuildToast = initPaletteBuildToast();
 
   const rowMenus = initRowMenus({ crayonList, paletteManager });
 

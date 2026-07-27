@@ -2,6 +2,8 @@ let toastElement = null;
 let messageElement = null;
 let dismissButton = null;
 let hideTimer = null;
+let currentToastId = null;
+let currentOnDismiss = null;
 
 function ensureToastElement() {
   if (toastElement) return toastElement;
@@ -22,7 +24,9 @@ function ensureToastElement() {
   dismissButton.hidden = true;
   dismissButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
   dismissButton.addEventListener("click", () => {
+    const onDismiss = currentOnDismiss;
     hideToast();
+    onDismiss?.();
   });
 
   toastElement.appendChild(messageElement);
@@ -31,18 +35,22 @@ function ensureToastElement() {
   return toastElement;
 }
 
-export function hideToast() {
+export function hideToast(id) {
+  if (id !== undefined && currentToastId !== id) return;
+
   const toast = ensureToastElement();
   clearTimeout(hideTimer);
   hideTimer = null;
   toast.hidden = true;
   toast.classList.remove("is-persistent");
   dismissButton.hidden = true;
+  currentToastId = null;
+  currentOnDismiss = null;
 }
 
 /**
  * @param {string} message
- * @param {number | { duration?: number, persistent?: boolean }} [options]
+ * @param {number | { duration?: number, persistent?: boolean, id?: string, onDismiss?: () => void }} [options]
  */
 export function showToast(message, options = {}) {
   const toast = ensureToastElement();
@@ -57,6 +65,8 @@ export function showToast(message, options = {}) {
   toast.classList.toggle("is-persistent", persistent);
   dismissButton.hidden = !persistent;
   toast.hidden = false;
+  currentToastId = config.id ?? null;
+  currentOnDismiss = config.onDismiss ?? null;
 
   if (!persistent) {
     hideTimer = setTimeout(() => {

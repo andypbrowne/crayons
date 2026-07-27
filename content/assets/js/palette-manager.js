@@ -11,6 +11,7 @@ import { getState, setState } from "./app-state.js";
 import { showToast, copyText } from "./toast.js";
 import { showConfirm, showPrompt } from "./prompt-dialog.js";
 import { buildShareUrl } from "./url-sync.js";
+import { BUILD_HINT_MAX_COLORS } from "./palette-build-toast.js";
 
 function createColorTag(colors) {
   const tag = document.createElement("span");
@@ -152,9 +153,6 @@ export function initPaletteManager({
       persistPalettes(result.palettes, {
         selectedPaletteId: result.palette.id,
       });
-      showToast("Palette created. Tap ⋯ on a crayon → Manage palette.", {
-        persistent: true,
-      });
     });
   }
 
@@ -241,7 +239,13 @@ export function initPaletteManager({
       row.addEventListener("click", (event) => {
         if (event.target.closest(".palette-kebab-btn, .palette-kebab-menu")) return;
 
-        if (palette.colors.length === 0) {
+        if (palette.colors.length <= BUILD_HINT_MAX_COLORS) {
+          if (isActive) {
+            onFilterChange("all");
+            setState({ selectedPaletteId: palette.id });
+            return;
+          }
+
           setState({
             selectedPaletteId: isSelected ? null : palette.id,
           });
@@ -267,11 +271,16 @@ export function initPaletteManager({
     const selectedPalette = state.userPalettes.find(
       (palette) => palette.id === state.selectedPaletteId,
     );
-    if (selectedPalette && selectedPalette.colors.length === 0) {
+    if (
+      selectedPalette &&
+      selectedPalette.colors.length <= BUILD_HINT_MAX_COLORS
+    ) {
       const hint = document.createElement("p");
       hint.className = "user-palette-empty-hint";
       hint.textContent =
-        "Add colors from the list — tap ⋯ on a crayon.";
+        selectedPalette.colors.length === 0
+          ? "Add colors from the list — tap ⋯ on a crayon."
+          : "Add more colors — tap ⋯ on a crayon.";
       container.appendChild(hint);
     }
   }
@@ -302,7 +311,6 @@ export function initPaletteManager({
       const result = createPalette(state.userPalettes, name, hex ? [hex] : []);
       if (!result.ok) return result;
       persistPalettes(result.palettes, {
-        nextFilter: hex ? `user:${result.palette.id}` : undefined,
         selectedPaletteId: result.palette.id,
       });
       return result;
