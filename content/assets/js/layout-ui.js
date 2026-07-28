@@ -126,17 +126,13 @@ function createArcController(crayonList) {
     const stageWidth = crayonList.clientWidth || window.innerWidth;
     const stageHeight = crayonList.clientHeight || window.innerHeight * 0.7;
     const crayonHeight = readCrayonHeightPx(crayonList);
-    const crayonLength = crayonHeight * (1172 / 121);
     const spacing = crayonHeight + ARC_GAP_PX;
     const minRadius = Math.max(stageWidth * 0.55, stageHeight * 0.55);
     radius = Math.max(minRadius, (count * spacing) / TWO_PI);
 
-    // Lowest crayon (butt at bottom of smile) sits near mid-stage.
-    // At θ=π/2 the crayon is radial, so ~half its length hangs below the arc.
-    const isCompact = stageWidth < 720 || stageHeight < 640;
-    const smileBottom = stageHeight * (isCompact ? 0.67 : 0.7);
+    // Bottom crayon (θ = π/2) centered vertically in the stage.
     cx = stageWidth / 2;
-    cy = smileBottom - radius - crayonLength * 0.45;
+    cy = stageHeight / 2 - radius;
   }
 
   function stepAngle() {
