@@ -26,10 +26,18 @@ export function initPanelRegistry() {
 
   function updateLayout() {
     const sorted = [...panels.values()].sort((a, b) => a.order - b.order);
+    const isMobile = !desktopMedia.matches;
 
     for (const entry of sorted) {
       const { hostEl, controller } = entry;
       if (!hostEl || !controller) continue;
+
+      if (isMobile) {
+        hostEl.classList.remove("is-dismissed");
+        hostEl.hidden = true;
+        hostEl.setAttribute("aria-hidden", "true");
+        continue;
+      }
 
       const visible = controller.isVisible();
       hostEl.classList.toggle("is-dismissed", !visible);

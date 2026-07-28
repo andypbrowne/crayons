@@ -111,6 +111,14 @@ export function initPanelChrome(
   }
 
   function syncVisibilityUi() {
+    if (!isDesktop()) {
+      panelEl.classList.remove("is-dismissed");
+      if (mobileToggle) {
+        mobileToggle.checked = false;
+      }
+      return;
+    }
+
     panelEl.classList.toggle("is-dismissed", !visible);
 
     if (mobileToggle && !visible) {

@@ -159,14 +159,38 @@
 				</div>
 			</div>
 			{% if shareMeta %}
-			{% include "partials/filter-actions.njk" %}
+			<div class="header-tools">
+				<span id="filter-status-pill" class="filter-status-pill" hidden></span>
+				<div class="header-tools-cluster">
+					{% include "partials/filter-actions.njk" %}
+					<button
+						type="button"
+						class="header-icon-btn header-menu-btn"
+						id="mobile-drawer-open"
+						aria-label="Open filters and palettes"
+						aria-expanded="false"
+						aria-controls="mobile-drawer"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+							<path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+						</svg>
+					</button>
+					<button
+						type="button"
+						class="nav-action-btn nav-about-btn header-cluster-about"
+						id="about-open"
+						aria-haspopup="dialog"
+						aria-controls="about-dialog"
+					>About</button>
+				</div>
+			</div>
 			{% endif %}
 			{#- Read more about `eleventy-navigation` at https://www.11ty.dev/docs/plugins/navigation/ #}
 			<nav class="header-nav">
 				<h2 class="visually-hidden">Top level navigation menu</h2>
 				<ul class="nav">
 					{% if shareMeta %}
-					<li class="nav-item">
+					<li class="nav-item nav-item-panels">
 						<div class="sort-select-wrap header-select-wrap">
 							<button
 								type="button"
@@ -192,11 +216,11 @@
 						</div>
 					</li>
 					{% endif %}
-					<li class="nav-item">
+					<li class="nav-item nav-item-about">
 						<button
 							type="button"
 							class="nav-action-btn nav-about-btn"
-							id="about-open"
+							id="about-open-nav"
 							aria-haspopup="dialog"
 							aria-controls="about-dialog"
 						>About</button>
@@ -204,6 +228,66 @@
 				</ul>
 			</nav>
 		</header>
+
+		{% if shareMeta %}
+		<div id="mobile-drawer" class="mobile-drawer" hidden>
+			<div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop"></div>
+			<div
+				class="mobile-drawer-panel"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="mobile-drawer-title"
+			>
+				<div class="mobile-drawer-header">
+					<h2 class="visually-hidden" id="mobile-drawer-title">Filters and palettes</h2>
+					<div class="mobile-drawer-tabs" role="tablist" aria-label="Panel sections">
+						<button
+							type="button"
+							class="mobile-drawer-tab"
+							role="tab"
+							id="mobile-drawer-tab-filters"
+							data-tab="filters"
+							aria-selected="true"
+							aria-controls="mobile-drawer-filters"
+						>Explore</button>
+						<button
+							type="button"
+							class="mobile-drawer-tab"
+							role="tab"
+							id="mobile-drawer-tab-palettes"
+							data-tab="palettes"
+							aria-selected="false"
+							aria-controls="mobile-drawer-palettes"
+							tabindex="-1"
+						>Palettes</button>
+					</div>
+					<button type="button" class="header-icon-btn mobile-drawer-close" id="mobile-drawer-close" aria-label="Close">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+							<path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+						</svg>
+					</button>
+				</div>
+				<div class="mobile-drawer-actions" id="mobile-drawer-actions" hidden></div>
+				<div class="mobile-drawer-body">
+					<div
+						class="mobile-drawer-tab-panel"
+						id="mobile-drawer-filters"
+						data-tab-panel="filters"
+						role="tabpanel"
+						aria-labelledby="mobile-drawer-tab-filters"
+					></div>
+					<div
+						class="mobile-drawer-tab-panel"
+						id="mobile-drawer-palettes"
+						data-tab-panel="palettes"
+						role="tabpanel"
+						aria-labelledby="mobile-drawer-tab-palettes"
+						hidden
+					></div>
+				</div>
+			</div>
+		</div>
+		{% endif %}
 
 		<main id="skip">
 			{{ content | safe }}

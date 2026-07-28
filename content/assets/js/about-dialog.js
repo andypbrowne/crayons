@@ -1,12 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const openBtn = document.getElementById("about-open");
+  const openButtons = document.querySelectorAll(".nav-about-btn");
   const dialog = document.getElementById("about-dialog");
   const closeBtn = dialog?.querySelector(".about-dialog-close");
 
-  if (!openBtn || !dialog || !closeBtn) return;
+  if (!openButtons.length || !dialog || !closeBtn) return;
 
-  openBtn.addEventListener("click", () => {
-    dialog.showModal();
+  openButtons.forEach((openBtn) => {
+    openBtn.addEventListener("click", () => {
+      dialog.showModal();
+    });
   });
 
   closeBtn.addEventListener("click", () => {

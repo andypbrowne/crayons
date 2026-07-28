@@ -25,6 +25,8 @@ import { initPanelChrome } from "./panel-chrome.js";
 import { initPanelRegistry } from "./panel-registry.js";
 import { initPanelMenu } from "./panel-menu.js";
 import { initLayoutUI, loadSavedLayout } from "./layout-ui.js";
+import { initMobileDrawer } from "./mobile-drawer.js";
+import { initHeaderChrome } from "./header-chrome.js";
 import {
   resolveMotionPreset,
   runCrayonTransition,
@@ -84,6 +86,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveSharedButton = document.getElementById("save-shared-btn");
 
   if (!crayonList) return;
+
+  const totalCount = crayonList.querySelectorAll("li[data-hex]").length;
+
+  const mobileDrawer = initMobileDrawer({
+    drawerEl: document.getElementById("mobile-drawer"),
+    openButton: document.getElementById("mobile-drawer-open"),
+    closeButton: document.getElementById("mobile-drawer-close"),
+    backdropEl: document.getElementById("mobile-drawer-backdrop"),
+    tabButtons: document.querySelectorAll(".mobile-drawer-tab"),
+    tabPanels: document.querySelectorAll(".mobile-drawer-tab-panel"),
+    filtersPanel: document.getElementById("filters-panel"),
+    palettesPanel: document.getElementById("palettes-panel"),
+    filtersSlot: document.getElementById("mobile-drawer-filters"),
+    palettesSlot: document.getElementById("mobile-drawer-palettes"),
+    filtersHost: document.getElementById("filters-host"),
+    palettesHost: document.getElementById("palettes-host"),
+    contextualEl: document.getElementById("filter-actions-contextual"),
+    contextualHost: document.querySelector(".filter-actions-bar"),
+    contextualDrawerSlot: document.getElementById("mobile-drawer-actions"),
+    clearButton,
+    copyLinkButton,
+  });
+
+  const headerChrome = initHeaderChrome({
+    pillEl: document.getElementById("filter-status-pill"),
+    clearButton,
+    copyLinkButton,
+    mobileDrawer,
+    totalCount,
+  });
 
   const registry = initPanelRegistry();
 
@@ -211,6 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
   paletteManager.update(state);
   rowMenus.updateMenus(state);
   layoutUi.update(state);
+  headerChrome.update(state);
 
   let prevMotion = {
     sort: state.sort,
@@ -225,6 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
     themeFilterUi.update(nextState);
     paletteManager.update(nextState);
     rowMenus.updateMenus(nextState);
+    headerChrome.update(nextState);
   }
 
   function applyCrayonState(nextState) {

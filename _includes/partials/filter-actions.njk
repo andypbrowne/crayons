@@ -1,11 +1,13 @@
 <div class="filter-actions-bar" role="toolbar" aria-label="Filter shortcuts">
-	<button type="button" class="filter-action-btn" id="filter-clear-btn" aria-label="Clear filters">
-		Clear<span class="filter-action-extra"> filters</span>
-	</button>
-	<button type="button" class="filter-action-btn filter-copy-link-btn" id="filter-copy-link-btn">
-		{% include "partials/copy-icon.njk" %}
-		Copy link
-	</button>
+	<div class="filter-actions-contextual" id="filter-actions-contextual">
+		<button type="button" class="filter-action-btn" id="filter-clear-btn" aria-label="Clear filters" hidden>
+			Clear<span class="filter-action-extra"> filters</span>
+		</button>
+		<button type="button" class="filter-action-btn filter-copy-link-btn" id="filter-copy-link-btn" hidden>
+			{% include "partials/copy-icon.njk" %}
+			Copy link
+		</button>
+	</div>
 	<label class="filter-layout-control">
 		<span class="visually-hidden">Layout</span>
 		<span class="sort-select-wrap header-select-wrap">
