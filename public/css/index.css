@@ -25,6 +25,10 @@
 	--surface-glass: rgba(255, 255, 255, 0.8);
 	--surface-glass-blur: blur(10px);
 
+	--filter-pill-bg: #e8eaed;
+	--filter-pill-text: #333333;
+	--filter-pill-border: #c4c9d0;
+
 	--syntax-tab-size: 2;
 }
 
@@ -41,6 +45,10 @@
 
 		--background-color: #15202b;
 		--surface-glass: rgba(21, 32, 43, 0.8);
+
+		--filter-pill-bg: #1c2936;
+		--filter-pill-text: #e8e6e3;
+		--filter-pill-border: #3d4f61;
 	}
 }
 
@@ -145,7 +153,7 @@ ol.crayons[data-layout="pile"] li figure svg.crayon-svg {
 	top: 31%;
 	transform: translateY(-50%);
 	color: #000;
-	font-size: clamp(0.5rem, 1.8vw, 0.6875rem);
+	font-size: 0.6875rem;
 	font-weight: 600;
 	line-height: 1;
 	pointer-events: none;
@@ -462,17 +470,27 @@ header {
 }
 
 .filter-status-pill {
-	display: none;
 	grid-area: pill;
+	justify-self: start;
 	font-size: 0.75rem;
 	line-height: 1.2;
 	padding: 0.3125rem 0.625rem;
 	border-radius: 999px;
-	background: var(--color-gray-20);
-	color: var(--color-gray-90);
+	background: var(--filter-pill-bg);
+	color: var(--filter-pill-text);
+	border: 1px solid var(--filter-pill-border);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	max-width: min(100%, 22rem);
+}
+
+.filter-status-pill[hidden] {
+	display: none !important;
+}
+
+.filter-status-pill:not([hidden]) {
+	display: inline-block;
 }
 
 .header-icon-btn {
@@ -1278,7 +1296,7 @@ ol.crayons .row-actions-btn.kebab-btn {
 		grid-template-columns: minmax(0, 1fr) auto;
 		grid-template-areas:
 			"brand tools"
-			"pill pill";
+			"pill .";
 		row-gap: 0.5rem;
 		column-gap: 0.75rem;
 		align-items: center;
@@ -1305,14 +1323,6 @@ ol.crayons .row-actions-btn.kebab-btn {
 		min-width: 0;
 	}
 
-	.has-filter-actions .filter-status-pill:not([hidden]) {
-		display: block;
-		justify-self: stretch;
-		width: 100%;
-		max-width: none;
-		min-width: 0;
-	}
-
 	.has-filter-actions .header-tools-cluster {
 		display: flex;
 		align-items: stretch;
@@ -1325,7 +1335,7 @@ ol.crayons .row-actions-btn.kebab-btn {
 
 	.has-filter-actions .filter-actions-bar {
 		display: flex;
-		align-items: stretch;
+		/* align-items: stretch; */
 		gap: 0;
 		padding: 0;
 		border: 0;
@@ -1372,6 +1382,14 @@ ol.crayons .row-actions-btn.kebab-btn {
 		top: calc(-1 * var(--header-height));
 		height: 100dvh;
 		min-height: 100dvh;
+	}
+
+	ol.crayons[data-layout="pile"] {
+		overflow: hidden;
+	}
+
+	.has-filter-actions:has(ol.crayons[data-layout="pile"]) {
+		overflow-x: hidden;
 	}
 
 	.has-filter-actions .panels-dock-column {
@@ -1902,7 +1920,7 @@ ol.crayons li button.row-actions-btn {
 		z-index: var(--chrome-z);
 		grid-template-areas:
 			"brand tools"
-			"pill pill";
+			"pill .";
 		background-color: var(--surface-glass, rgba(255, 255, 255, 0.8));
 		backdrop-filter: var(--surface-glass-blur, blur(10px));
 		-webkit-backdrop-filter: var(--surface-glass-blur, blur(10px));
@@ -1973,6 +1991,11 @@ ol.crayons li button.row-actions-btn {
 	.has-filter-actions header {
 		grid-template-columns: minmax(0, 1fr) auto auto;
 		grid-template-areas: "brand tools nav";
+	}
+
+	.has-filter-actions header:has(.filter-status-pill:not([hidden])) {
+		grid-template-columns: minmax(0, 1fr) auto auto auto;
+		grid-template-areas: "brand pill tools nav";
 	}
 
 	.has-filter-actions .header-tools {
