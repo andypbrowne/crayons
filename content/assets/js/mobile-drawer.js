@@ -18,6 +18,7 @@ export function initMobileDrawer({
   contextualDrawerSlot,
   clearButton,
   copyLinkButton,
+  exportButton,
 } = {}) {
   if (!drawerEl || !filtersPanel || !palettesPanel) {
     return { open() {}, close() {}, isOpen: () => false };
@@ -82,9 +83,9 @@ export function initMobileDrawer({
     contextualHost?.prepend(contextualEl);
   }
 
-  function syncContextualActions(state, { hasFilters, canShare }) {
+  function syncContextualActions(state, { hasFilters, canShare, canExport }) {
     if (!contextualEl) return;
-    const showActions = hasFilters || canShare;
+    const showActions = hasFilters || canShare || canExport;
     if (contextualDrawerSlot) {
       contextualDrawerSlot.hidden = !showActions;
     }
@@ -93,6 +94,9 @@ export function initMobileDrawer({
     }
     if (copyLinkButton) {
       copyLinkButton.hidden = !canShare;
+    }
+    if (exportButton) {
+      exportButton.hidden = !canExport;
     }
   }
 

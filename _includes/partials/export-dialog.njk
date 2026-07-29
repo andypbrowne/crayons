@@ -1,0 +1,23 @@
+<dialog id="export-dialog" class="export-dialog app-dialog" aria-labelledby="export-dialog-title">
+	<button type="button" class="dialog-close-btn export-dialog-close" aria-label="Close">
+		<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+			<path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+		</svg>
+	</button>
+	<div class="export-dialog-body">
+		<h2 id="export-dialog-title" class="export-dialog-title">Export palette</h2>
+		<div class="export-dialog-summary">
+			<p id="export-dialog-description" class="export-dialog-description"></p>
+			<div id="export-dialog-swatches" class="export-dialog-swatches" aria-hidden="true"></div>
+		</div>
+		<fieldset class="export-dialog-formats">
+			<legend class="export-dialog-formats-label">Format</legend>
+			<div id="export-format-options" class="export-format-options" role="radiogroup" aria-label="Export format"></div>
+		</fieldset>
+		<pre id="export-dialog-preview" class="export-dialog-preview" aria-label="Export preview"></pre>
+		<div class="export-dialog-actions">
+			<button type="button" class="app-dialog-btn export-dialog-cancel">Cancel</button>
+			<button type="button" class="app-dialog-btn app-dialog-submit export-dialog-download">Download</button>
+		</div>
+	</div>
+</dialog>

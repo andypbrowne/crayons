@@ -296,6 +296,9 @@
 		<footer></footer>
 
 		{% include "partials/about-dialog.njk" %}
+		{% if shareMeta %}
+		{% include "partials/export-dialog.njk" %}
+		{% endif %}
 
 		<script type="module" src="/assets/js/about-dialog.js"></script>
 		{% if js %}

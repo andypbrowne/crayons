@@ -1,7 +1,7 @@
-import { getPresetById } from "./presets.js";
 import { FAMILIES } from "./color-family.js";
 import { THEMES } from "./color-theme.js";
 import { getVisibleColors } from "./app-state.js";
+import { getPaletteLabel, canExportPalette } from "./palette-label.js";
 
 const SORT_LABELS = {
   color: "By color",
@@ -22,37 +22,15 @@ export function hasActiveFilters(state) {
 }
 
 export function canShareFilterState(state) {
-  if (state.sharedColors?.length) return true;
-  if (state.activeFilter.startsWith("user:")) return true;
-  if (state.activeFilter !== "all" && state.activeFilter !== "shared") {
-    return Boolean(getPresetById(state.activeFilter));
-  }
-  return false;
+  return canExportPalette(state);
 }
 
-function paletteLabel(state) {
-  if (state.sharedColors?.length) {
-    return "Shared palette";
-  }
-  if (state.activeFilter === "all" || state.activeFilter === "shared") {
-    return null;
-  }
-  if (state.activeFilter.startsWith("user:")) {
-    const id = state.activeFilter.slice(5);
-    const palette = state.userPalettes.find((entry) => entry.id === id);
-    return palette?.name ?? "My palette";
-  }
-  const preset = getPresetById(state.activeFilter);
-  if (preset) {
-    return `${preset.emoji} ${preset.label}`;
-  }
-  return state.activeFilter;
-}
+export { canExportPalette };
 
 export function buildFilterSummary(state, { totalCount = 0 } = {}) {
   const parts = [];
 
-  const palette = paletteLabel(state);
+  const palette = getPaletteLabel(state);
   if (palette) parts.push(palette);
 
   if (state.colorFamily) {

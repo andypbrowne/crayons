@@ -27,6 +27,7 @@ import { initPanelMenu } from "./panel-menu.js";
 import { initLayoutUI, loadSavedLayout } from "./layout-ui.js";
 import { initMobileDrawer } from "./mobile-drawer.js";
 import { initHeaderChrome } from "./header-chrome.js";
+import { initExportPalette } from "./export-palette.js";
 import {
   resolveMotionPreset,
   runCrayonTransition,
@@ -83,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const newPaletteButton = document.getElementById("new-palette-btn");
   const clearButton = document.getElementById("filter-clear-btn");
   const copyLinkButton = document.getElementById("filter-copy-link-btn");
+  const exportButton = document.getElementById("filter-export-btn");
   const saveSharedButton = document.getElementById("save-shared-btn");
 
   if (!crayonList) return;
@@ -107,14 +109,24 @@ document.addEventListener("DOMContentLoaded", () => {
     contextualDrawerSlot: document.getElementById("mobile-drawer-actions"),
     clearButton,
     copyLinkButton,
+    exportButton,
   });
 
   const headerChrome = initHeaderChrome({
     pillEl: document.getElementById("filter-status-pill"),
     clearButton,
     copyLinkButton,
+    exportButton,
     mobileDrawer,
     totalCount,
+  });
+
+  const colorNameMap = buildHexNameMap(crayonList);
+
+  const exportPaletteUi = initExportPalette({
+    button: exportButton,
+    dialog: document.getElementById("export-dialog"),
+    colorNameMap,
   });
 
   const registry = initPanelRegistry();
@@ -142,7 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const validHexSet = buildValidHexSet(crayonList);
-  const colorNameMap = buildHexNameMap(crayonList);
   const nameHexMap = buildNameHexMap(crayonList);
   buildFamilyIndex(crayonList);
   buildThemeIndex(crayonList);
@@ -230,6 +241,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     },
     onPalettesChange() {},
+    onExportPalette(palette) {
+      exportPaletteUi.openWithPalette(palette);
+    },
   });
 
   const paletteBuildToast = initPaletteBuildToast();

@@ -25,7 +25,7 @@ function createColorTag(colors) {
   return tag;
 }
 
-function createKebabMenu(palette, { onRename, onDelete }) {
+function createKebabMenu(palette, { onRename, onDelete, onExport }) {
   const menuId = `palette-menu-${palette.id}`;
   const trigger = document.createElement("button");
   trigger.type = "button";
@@ -40,7 +40,14 @@ function createKebabMenu(palette, { onRename, onDelete }) {
   menu.popover = "auto";
   menu.id = menuId;
   menu.role = "menu";
+
+  const exportItem =
+    palette.colors.length > 0
+      ? `<button type="button" class="palette-kebab-item" data-action="export" role="menuitem">Export</button><hr class="palette-kebab-divider">`
+      : "";
+
   menu.innerHTML = `
+    ${exportItem}
     <button type="button" class="palette-kebab-item" data-action="rename" role="menuitem">Rename</button>
     <hr class="palette-kebab-divider">
     <button type="button" class="palette-kebab-item palette-kebab-item-danger" data-action="delete" role="menuitem">Delete</button>
@@ -50,6 +57,7 @@ function createKebabMenu(palette, { onRename, onDelete }) {
     const action = event.target.closest("[data-action]")?.dataset.action;
     if (!action) return;
     menu.hidePopover?.();
+    if (action === "export") onExport?.();
     if (action === "rename") onRename();
     if (action === "delete") onDelete();
   });
@@ -67,6 +75,7 @@ export function initPaletteManager({
   colorNameMap,
   onFilterChange,
   onPalettesChange,
+  onExportPalette,
 }) {
   if (!container) return { update() {} };
 
@@ -231,6 +240,7 @@ export function initPaletteManager({
       const { trigger, menu } = createKebabMenu(palette, {
         onRename: () => handleRename(palette),
         onDelete: () => handleDelete(palette),
+        onExport: () => onExportPalette?.(palette),
       });
 
       actions.appendChild(trigger);
