@@ -6,22 +6,26 @@ function ensureDialog() {
   dialogEl = document.createElement("dialog");
   dialogEl.className = "app-dialog";
   dialogEl.innerHTML = `
-    <button type="button" class="dialog-close-btn app-dialog-dismiss" aria-label="Close">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-        <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </button>
-    <form method="dialog" class="app-dialog-form">
-      <p class="app-dialog-message"></p>
-      <label class="app-dialog-field">
-        <span class="visually-hidden app-dialog-label"></span>
-        <input type="text" class="app-dialog-input" autocomplete="off" maxlength="64" />
-      </label>
-      <div class="app-dialog-actions">
-        <button type="button" class="app-dialog-btn app-dialog-cancel">Cancel</button>
-        <button type="submit" class="app-dialog-btn app-dialog-submit">OK</button>
-      </div>
-    </form>
+    <div class="dialog-panel">
+      <header class="dialog-header dialog-header--close-only">
+        <button type="button" class="dialog-close-btn app-dialog-dismiss" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </header>
+      <form method="dialog" class="dialog-body app-dialog-form">
+        <p class="app-dialog-message"></p>
+        <label class="app-dialog-field">
+          <span class="visually-hidden app-dialog-label"></span>
+          <input type="text" class="app-dialog-input" autocomplete="off" maxlength="64" />
+        </label>
+        <div class="app-dialog-actions">
+          <button type="button" class="app-dialog-btn app-dialog-cancel">Cancel</button>
+          <button type="submit" class="app-dialog-btn app-dialog-submit">OK</button>
+        </div>
+      </form>
+    </div>
   `;
   document.body.appendChild(dialogEl);
 

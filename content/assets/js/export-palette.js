@@ -1,7 +1,7 @@
 import { getState, getActiveColors } from "./app-state.js";
 import { getPaletteLabel } from "./palette-label.js";
 import { EXPORT_FORMATS, exportPalette } from "./export-formats.js";
-import { showToast } from "./toast.js";
+import { showToast, copyText } from "./toast.js";
 
 const DEFAULT_FORMAT = "json";
 
@@ -14,6 +14,7 @@ export function initExportPalette({ button, dialog, colorNameMap } = {}) {
   const swatchesEl = dialog.querySelector("#export-dialog-swatches");
   const optionsEl = dialog.querySelector("#export-format-options");
   const previewEl = dialog.querySelector("#export-dialog-preview");
+  const copyBtn = dialog.querySelector(".export-dialog-copy");
   const downloadBtn = dialog.querySelector(".export-dialog-download");
   const cancelBtn = dialog.querySelector(".export-dialog-cancel");
   const closeBtn = dialog.querySelector(".export-dialog-close");
@@ -83,8 +84,14 @@ export function initExportPalette({ button, dialog, colorNameMap } = {}) {
         colorNameMap,
       });
       previewEl.textContent = preview;
+      if (copyBtn) {
+        copyBtn.disabled = !preview.trim();
+      }
     } catch {
       previewEl.textContent = "";
+      if (copyBtn) {
+        copyBtn.disabled = true;
+      }
     }
   }
 
@@ -153,6 +160,11 @@ export function initExportPalette({ button, dialog, colorNameMap } = {}) {
   }
 
   button?.addEventListener("click", open);
+  copyBtn?.addEventListener("click", () => {
+    const text = previewEl?.textContent?.trim();
+    if (!text) return;
+    copyText(text, "Preview copied!");
+  });
   downloadBtn?.addEventListener("click", download);
   cancelBtn?.addEventListener("click", closeDialog);
   closeBtn?.addEventListener("click", closeDialog);
