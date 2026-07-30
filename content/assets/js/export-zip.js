@@ -1,0 +1,117 @@
+const CRC_TABLE = (() => {
+  const table = new Uint32Array(256);
+  for (let index = 0; index < 256; index += 1) {
+    let value = index;
+    for (let bit = 0; bit < 8; bit += 1) {
+      value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+    }
+    table[index] = value;
+  }
+  return table;
+})();
+
+function crc32(data) {
+  let crc = 0xffffffff;
+  for (let index = 0; index < data.length; index += 1) {
+    crc = CRC_TABLE[(crc ^ data[index]) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function toBytes(content) {
+  if (content instanceof Uint8Array) return content;
+  return new TextEncoder().encode(String(content));
+}
+
+function writeUint16LE(view, offset, value) {
+  view.setUint16(offset, value, true);
+}
+
+function writeUint32LE(view, offset, value) {
+  view.setUint32(offset, value, true);
+}
+
+export function createZipArchive(files) {
+  const entries = files.map((file) => {
+    const nameBytes = toBytes(file.name);
+    const dataBytes = toBytes(file.data);
+    return {
+      nameBytes,
+      dataBytes,
+      crc: crc32(dataBytes),
+    };
+  });
+
+  let offset = 0;
+  const localParts = [];
+  const centralParts = [];
+
+  entries.forEach((entry) => {
+    const { nameBytes, dataBytes, crc } = entry;
+    const localHeader = new Uint8Array(30 + nameBytes.length);
+    const localView = new DataView(localHeader.buffer);
+    writeUint32LE(localView, 0, 0x04034b50);
+    writeUint16LE(localView, 4, 20);
+    writeUint16LE(localView, 6, 0);
+    writeUint16LE(localView, 8, 0);
+    writeUint16LE(localView, 10, 0);
+    writeUint16LE(localView, 12, 0);
+    writeUint32LE(localView, 14, crc);
+    writeUint32LE(localView, 18, dataBytes.length);
+    writeUint32LE(localView, 22, dataBytes.length);
+    writeUint16LE(localView, 26, nameBytes.length);
+    writeUint16LE(localView, 28, 0);
+    localHeader.set(nameBytes, 30);
+
+    localParts.push(localHeader, dataBytes);
+
+    const centralHeader = new Uint8Array(46 + nameBytes.length);
+    const centralView = new DataView(centralHeader.buffer);
+    writeUint32LE(centralView, 0, 0x02014b50);
+    writeUint16LE(centralView, 4, 20);
+    writeUint16LE(centralView, 6, 20);
+    writeUint16LE(centralView, 8, 0);
+    writeUint16LE(centralView, 10, 0);
+    writeUint16LE(centralView, 12, 0);
+    writeUint16LE(centralView, 14, 0);
+    writeUint32LE(centralView, 16, crc);
+    writeUint32LE(centralView, 20, dataBytes.length);
+    writeUint32LE(centralView, 24, dataBytes.length);
+    writeUint16LE(centralView, 28, nameBytes.length);
+    writeUint16LE(centralView, 30, 0);
+    writeUint16LE(centralView, 32, 0);
+    writeUint16LE(centralView, 34, 0);
+    writeUint16LE(centralView, 36, 0);
+    writeUint32LE(centralView, 38, 0);
+    writeUint32LE(centralView, 42, offset);
+    centralHeader.set(nameBytes, 46);
+    centralParts.push(centralHeader);
+
+    offset += localHeader.length + dataBytes.length;
+  });
+
+  const centralDirectory = concatUint8Arrays(centralParts);
+  const endRecord = new Uint8Array(22);
+  const endView = new DataView(endRecord.buffer);
+  writeUint32LE(endView, 0, 0x06054b50);
+  writeUint16LE(endView, 4, 0);
+  writeUint16LE(endView, 6, 0);
+  writeUint16LE(endView, 8, entries.length);
+  writeUint16LE(endView, 10, entries.length);
+  writeUint32LE(endView, 12, centralDirectory.length);
+  writeUint32LE(endView, 16, offset);
+  writeUint16LE(endView, 20, 0);
+
+  return concatUint8Arrays([...localParts, centralDirectory, endRecord]);
+}
+
+function concatUint8Arrays(parts) {
+  const totalLength = parts.reduce((sum, part) => sum + part.length, 0);
+  const output = new Uint8Array(totalLength);
+  let offset = 0;
+  parts.forEach((part) => {
+    output.set(part, offset);
+    offset += part.length;
+  });
+  return output;
+}
