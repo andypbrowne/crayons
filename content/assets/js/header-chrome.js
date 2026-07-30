@@ -12,6 +12,7 @@ export function initHeaderChrome({
   exportButton,
   mobileDrawer,
   totalCount = 0,
+  syncHeaderLayout,
 } = {}) {
   function update(state) {
     const filtersActive = hasActiveFilters(state);
@@ -48,6 +49,8 @@ export function initHeaderChrome({
     if (exportButton) {
       exportButton.hidden = !exportable;
     }
+
+    syncHeaderLayout?.();
   }
 
   return { update };

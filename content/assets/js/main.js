@@ -27,6 +27,7 @@ import { initPanelMenu } from "./panel-menu.js";
 import { initLayoutUI, loadSavedLayout } from "./layout-ui.js";
 import { initMobileDrawer } from "./mobile-drawer.js";
 import { initHeaderChrome } from "./header-chrome.js";
+import { initHeaderLayout } from "./header-layout.js";
 import { initExportPalette } from "./export-palette.js";
 import {
   resolveMotionPreset,
@@ -90,6 +91,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!crayonList) return;
 
   const totalCount = crayonList.querySelectorAll("li[data-hex]").length;
+  const headerEl = document.querySelector("header");
+  const headerLayout = initHeaderLayout(headerEl);
 
   const mobileDrawer = initMobileDrawer({
     drawerEl: document.getElementById("mobile-drawer"),
@@ -119,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     exportButton,
     mobileDrawer,
     totalCount,
+    syncHeaderLayout: headerLayout.sync,
   });
 
   const colorNameMap = buildHexNameMap(crayonList);

@@ -2,7 +2,7 @@
 :root {
 	--font-family: -apple-system, system-ui, sans-serif;
 	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
-	--header-height: 2rem;
+	--header-height: 4.5rem;
 	--layout-gutter: 1rem;
 	--content-offset-top: calc(var(--header-height) + var(--layout-gutter));
 	--chrome-z: 1100;
@@ -1379,10 +1379,6 @@ ol.crayons .row-actions-btn.kebab-btn {
 		row-gap: 0;
 	}
 
-	.has-filter-actions:has(.filter-status-pill:not([hidden])) {
-		--header-height: 5.5rem;
-	}
-
 	.has-filter-actions .header-nav {
 		display: none;
 	}
@@ -2150,7 +2146,6 @@ ol.crayons li button.row-actions-btn {
 
 @media (max-width: 999px) {
 	header {
-		/* min-height: var(--header-height); */
 		grid-template-columns: minmax(0, 1fr) auto;
 		grid-template-areas:
 			"brand nav";
@@ -2224,7 +2219,7 @@ ol.crayons li button.row-actions-btn {
 		width: 100%;
 		top: 0;
 		z-index: var(--chrome-z);
-		height: var(--header-height);
+		align-items: start;
 		grid-template-areas: "brand nav";
 		background-color: var(--surface-glass);
 		backdrop-filter: var(--surface-glass-blur);
